@@ -37,13 +37,13 @@ export default function Navbar() {
                 </div>
 
                 <div className="items-center space-x-6 hidden md:flex">
-                    <Link href="/About" className="text-base font-medium transition-colors hover:text-primary">
+                    <Link href="/about" className="text-base font-medium transition-colors hover:text-primary">
                         About
                     </Link>
                     <Link href='/login' className="text-base font-medium transition-colors hover:text-primary">
                         Login
                     </Link>
-                    <Link href='/Register' className="text-base font-medium transition-colors hover:text-primary">
+                    <Link href='/register' className="text-base font-medium transition-colors hover:text-primary">
                         Register
                     </Link>
                     <Button>
