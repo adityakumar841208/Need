@@ -70,3 +70,23 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+/* Grid pattern for light and dark modes */
+.bg-grid-slate-200\/50 {
+  background-image: 
+    radial-gradient(circle at center, transparent, white),
+    linear-gradient(to right, rgb(226 232 240 / 0.5) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(226 232 240 / 0.5) 1px, transparent 1px);
+  background-size: 100% 100%, 24px 24px, 24px 24px;
+  background-position: center;
+}
+
+/* Dark mode specific grid */
+.dark .bg-grid-slate-200\/50 {
+  background-image: 
+    radial-gradient(circle at center, transparent, rgb(15 23 42)),
+    linear-gradient(to right, rgb(148 163 184 / 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(148 163 184 / 0.05) 1px, transparent 1px);
+  background-size: 100% 100%, 24px 24px, 24px 24px;
+  background-position: center;
+}

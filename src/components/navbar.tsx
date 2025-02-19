@@ -46,7 +46,7 @@ export default function Navbar() {
                     <Link href='/register' className="text-base font-medium transition-colors hover:text-primary">
                         Register
                     </Link>
-                    <Button>
+                    <Button onClick={() => window.location.href = '/contact'} className="text-base font-medium">
                         Contact
                     </Button>
                     <ModeToggle />
