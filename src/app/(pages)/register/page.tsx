@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Icons } from "@/components/icons"
 import { FcGoogle } from 'react-icons/fc'
 import { z } from 'zod'
+import { signIn } from 'next-auth/react'
 
 
 
@@ -186,7 +187,7 @@ export default function LoginPage() {
                                         </div>
                                     </div>
                                 </div>
-                                <Button variant="outline" disabled={isLoading} className="w-full h-11">
+                                <Button variant="outline" disabled={isLoading} className="w-full h-11" onClick={()=> signIn('google')}>
                                     <FcGoogle className="mr-2 h-5 w-5" />
                                     Continue with Google
                                 </Button>

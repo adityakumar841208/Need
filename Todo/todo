@@ -1,2 +1,3 @@
-fix the login - inspect the security of the code
-              - Dashboard ( implement the safe routing )
+fix the login - inspect the security of the code 
+              - Dashboard ( implement the safe routing ) - it's not working properly
+              - Try to pass custom data into signIn('google')

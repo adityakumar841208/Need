@@ -50,7 +50,6 @@ const servicesSchema = new mongoose.Schema({
 const serviceProviderSchema = new mongoose.Schema({
   name: {
     type: String,
-    required: true,
     max: 255,
   },
   email: {
@@ -61,7 +60,6 @@ const serviceProviderSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: true,
     minlength: 8, // Minimum password length
   },
   address: {
@@ -70,12 +68,10 @@ const serviceProviderSchema = new mongoose.Schema({
   },
   mobile: {
     type: Number,
-    required: true,
     unique: true, // Ensure unique mobile numbers
   },
   services: {
     type: [servicesSchema],
-    required: true, // Ensure services are provided
   },
   rating: {
     type: Number,
@@ -87,7 +83,7 @@ const serviceProviderSchema = new mongoose.Schema({
     type: [reviewsSchema],
     default: [], // Default empty array for reviews
   },
-  profilePicture: {
+  image: {
     type: String,
   },
   isVerified: {

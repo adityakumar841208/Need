@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Icons } from "@/components/icons"
 import { FcGoogle } from 'react-icons/fc'
 import { z } from 'zod'
+import { signIn } from 'next-auth/react'
 
 
 
@@ -18,6 +19,8 @@ export default function LoginPage() {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [error, setError] = useState({ 'email': '', 'password': '' })
+
+    const state = JSON.stringify({ "name": "John Doe" });
 
     const loginSchema = z.object({
         email: z.string().email(),
@@ -67,7 +70,7 @@ export default function LoginPage() {
                 setError({
                     email: error.errors?.find((err: any) => err.path?.includes("email"))?.message || "",
                     password: error.errors?.find((err: any) => err.path?.includes("password"))?.message || "",
-                }); 
+                });
             } else {
                 console.log("An error occurred during login:", error.message);
             }
@@ -75,6 +78,11 @@ export default function LoginPage() {
             setIsLoading(false);
         }
     };
+
+    // function to handle google authentication
+    // const GoogleAuth = async () => {
+
+    // }
 
     return (
         <div className="relative flex items-center justify-center p-4">
@@ -187,7 +195,16 @@ export default function LoginPage() {
                                         </div>
                                     </div>
                                 </div>
-                                <Button variant="outline" disabled={isLoading} className="w-full h-11">
+                                <Button
+                                    variant="outline"
+                                    disabled={isLoading}
+                                    className="w-full h-11"
+                                    onClick={() =>
+                                        signIn('google', {
+                                            callbackUrl: `/dashboard/?userType=${isServiceProvider ? 'service-provider' : 'customer'}&auth=login`,
+                                            state: state
+                                        })
+                                    }>
                                     <FcGoogle className="mr-2 h-5 w-5" />
                                     Continue with Google
                                 </Button>
