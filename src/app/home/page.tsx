@@ -59,7 +59,7 @@ export default function Dashboard() {
           </div>
 
           {/* Recent Activity */}
-          <div className="bg-white rounded-lg shadow-sm p-6">
+          <div className="bg-white dark:bg-black rounded-lg shadow-sm p-6">
             <h3 className="text-lg font-semibold mb-4">Recent Activity</h3>
             <div className="space-y-4">
               {MOCK_DATA.recentActivity.map((activity) => (
@@ -87,7 +87,7 @@ export default function Dashboard() {
 
 
 const StatsCard: React.FC<StatsCardProps> = ({ title, value, change, trend }) => (
-  <div className="bg-white rounded-lg shadow-sm p-6">
+  <div className="bg-white dark:bg-black rounded-lg shadow-sm p-6">
     <h3 className="text-gray-500 text-sm font-medium mb-2">{title}</h3>
     <div className="flex items-baseline justify-between">
       <p className="text-2xl font-semibold">{value}</p>

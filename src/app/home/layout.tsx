@@ -6,11 +6,13 @@ import { BiNotification, BiUser, BiMenu } from "react-icons/bi";
 import ModeToggle from "@/components/ui/mode-toggle";
 import { useState } from "react";
 import Sidebar2 from "@/components/sidebar2";
+import { useRouter } from 'next/navigation';
 
 // Code: Layout component for dashboard
 
 export default function Layout({ children }: { children: React.ReactNode }) {
     const [showSidebar, setShowSidebar] = useState(false);
+    const router = useRouter();
 
     return (
         <>
@@ -22,7 +24,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
                 {/* Mobile Sidebar - Appears only when hamburger is clicked */}
                 <div
-                    className={`fixed inset-y-0 left-0 z-50 bg-white shadow-lg w-64 transform ${
+                    className={`fixed inset-y-0 left-0 z-50 bg-white dark:bg-black shadow-lg w-64 transform ${
                         showSidebar ? "translate-x-0" : "-translate-x-full"
                     } transition-transform duration-300 ease-in-out md:hidden`}
                     onClick={()=>setShowSidebar(false)}
@@ -31,8 +33,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 </div>
 
                 <main className="flex-1 flex flex-col">
-                    <header className="bg-white border-b px-6 py-4 flex justify-between items-center sticky top-0 left-0 z-40 w-full">
-                        <h2 className="text-xl font-semibold text-gray-800 hidden md:block">Welcome User</h2>
+                    <header className="bg-white dark:bg-black border-b px-6 py-4 flex justify-between items-center sticky top-0 left-0 z-40 w-full">
+                        <h2 className="text-xl font-semibold text-gray-800 dark:text-white hidden md:block">Welcome User</h2>
                         
                         {/* Hamburger Button (Mobile) */}
                         <button
@@ -47,8 +49,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                                 <BiNotification size={22} />
                             </button>
                             <ModeToggle />
-                            <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
-                                <BiUser size={20} className="text-blue-600" />
+                            <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center cursor-pointer hover:bg-blue-200">
+                                <BiUser size={20} className="text-blue-600"  onClick={()=> router.push('/home/profile')}/>
                             </div>
                         </div>
                     </header>
