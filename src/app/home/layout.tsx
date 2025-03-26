@@ -24,9 +24,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
                 {/* Mobile Sidebar - Appears only when hamburger is clicked */}
                 <div
-                    className={`fixed inset-y-0 left-0 z-50 bg-white dark:bg-black shadow-lg w-64 transform ${
-                        showSidebar ? "translate-x-0" : "-translate-x-full"
-                    } transition-transform duration-300 ease-in-out md:hidden`}
+                    className={`fixed inset-y-0 left-0 z-50 bg-white dark:bg-black shadow-lg w-64 transform ${showSidebar ? "translate-x-0" : "-translate-x-full"} transition-transform duration-300 ease-in-out md:hidden`}
                     onClick={()=>setShowSidebar(false)}
                 >
                     <Sidebar2 />
@@ -45,7 +43,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                         </button>
 
                         <div className="flex items-center space-x-4">
-                            <button className="p-2 rounded-lg hover:bg-gray-100">
+                            <button className="p-2 rounded-lg hover:bg-gray-100 dark:hover:text-black">
                                 <BiNotification size={22} />
                             </button>
                             <ModeToggle />

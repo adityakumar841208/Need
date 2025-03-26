@@ -33,7 +33,7 @@ export default function Chat() {
                 {[1, 2, 3].map((_, i) => (
                     <div
                         key={i}
-                        className="flex items-center gap-4 p-4 hover:bg-black cursor-pointer border-b border-gray-200 dark:border-gray-700"
+                        className="flex items-center gap-4 p-4 hover:bg-gray-100 dark:hover:bg-black cursor-pointer border-b border-gray-200 dark:border-gray-700"
                         onClick={() => router.push(`/home/chat/${i + 1}`)}
                     >
                         <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700 rounded-full flex items-center justify-center shadow-sm">
