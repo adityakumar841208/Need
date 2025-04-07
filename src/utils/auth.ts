@@ -12,18 +12,12 @@ export const generateRefreshToken = (userId: string) => {
 };
 
 export const verifyAccessToken = (token: string) => {
-    console.log(token, 'i got a call');
-
     try {
-        const verify = jwt.verify(token, `Bearer ` + ACCESS_TOKEN_SECRET);
-        console.log(verify, 'verify');
-
-        return verify;
+        const decoded = jwt.verify(token, ACCESS_TOKEN_SECRET);
+        return decoded;
     } catch (error) {
-        console.log(error, 'error');
+        throw error;
     }
-
-    return 
 };
 
 export const verifyRefreshToken = (token: string) => {

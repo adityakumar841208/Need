@@ -26,7 +26,8 @@ export default function LoginPage() {
 
     // function to handle form submission
     const handleSubmit = async (e: FormEvent) => {
-        console.log('Form submitted')
+        // console.log('Form submitted')
+
         e.preventDefault();
         setIsLoading(true);
         setError({ email: "", password: "" });
@@ -54,12 +55,15 @@ export default function LoginPage() {
                 throw new Error(data.message || "Login failed");
             }
 
+            
+            // window.location.href = "/home"; // Or use a router push
+
             // if (response.ok) {
             //     console.log("Login successful:", data);
             //     window.location.href = "/dashboard"; // Or use a router push
             // }
 
-            console.log("Login successful:", data);
+            console.log("Register Successful", data);
         } catch (error: any) {
             if (error.errors) {
                 // Handle Zod validation errors

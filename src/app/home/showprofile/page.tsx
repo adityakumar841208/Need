@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { useParams } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
 import { FaMapMarkerAlt, FaClock, FaUserCheck, FaBriefcase, FaStar, FaCheck, FaPen, FaPhone, FaEnvelope, FaCamera } from 'react-icons/fa';
 import { MdWork, MdVerified } from 'react-icons/md';
 import { Button } from '@/components/ui/button';
@@ -53,171 +53,171 @@ interface UserProfile {
 }
 
 // Type-safe record of user data
-const usersData: Record<string, UserProfile> = {
-  'user-1': {
-    id: 'user-1',
-    name: 'John Doe',
-    email: 'john@example.com',
-    role: 'service_provider',
-    description: "Experienced professional with over 10 years in plumbing and electrical services. Dedicated to providing high-quality work and excellent customer service. Available for both residential and commercial projects.",
-    mobile: '+1 (234) 567-8900',
-    address: '123 Main St',
-    city: 'New York',
-    state: 'NY',
-    country: 'USA',
-    profilePicture: 'https://ui-avatars.com/api/?name=John+Doe&background=random',
-    coverPicture: 'https://images.unsplash.com/photo-1556912172-45b7abe8b7e1?q=80&w=800',
-    services: [
-      {
-        name: 'Plumbing Service',
-        description: 'Professional plumbing solutions for residential and commercial properties',
-        price: 50,
-        category: 'Plumbing',
-        rating: 4.9,
-        completedJobs: 124
-      },
-      {
-        name: 'Electrical Repairs',
-        description: 'Complete electrical services including installations and maintenance',
-        price: 60,
-        category: 'Electrical',
-        rating: 4.7,
-        completedJobs: 89
-      }
-    ],
-    rating: 4.8,
-    totalReviews: 213,
-    completedJobs: 245,
-    memberSince: 'January 2022',
-    responseTime: '< 30',
-    reviews: [
-      {
-        rating: 5,
-        review: 'Excellent service! John was professional, punctual and did an amazing job fixing our plumbing issues.',
-        customer: 'Sarah Mitchell',
-        customerImage: 'https://ui-avatars.com/api/?name=Sarah+Mitchell&background=random',
-        date: '2 days ago',
-        jobCategory: 'Plumbing'
-      },
-      {
-        rating: 4,
-        review: 'Very professional and efficient. Would definitely recommend!',
-        customer: 'Mike Johnson',
-        customerImage: 'https://ui-avatars.com/api/?name=Mike+Johnson&background=random',
-        date: '1 week ago',
-        jobCategory: 'Electrical'
-      },
-      {
-        rating: 5,
-        review: 'Outstanding service! Fixed my issue quickly and professionally.',
-        customer: 'Emily Brown',
-        customerImage: 'https://ui-avatars.com/api/?name=Emily+Brown&background=random',
-        date: '2 weeks ago',
-        jobCategory: 'Plumbing'
-      }
-    ],
-    isVerified: true,
-    badges: ['Top Rated', 'Quick Responder', 'Background Checked'],
-    availability: 'Available Now'
-  },
-  'user-2': {
-    id: 'user-2',
-    name: 'Emma Watson',
-    email: 'emma@example.com',
-    role: 'client',
-    description: "Looking for reliable service providers for various home improvement projects. Prefer professionals with verifiable references and experience.",
-    mobile: '+1 (345) 678-9012',
-    address: '456 Elm St',
-    city: 'Boston',
-    state: 'MA',
-    country: 'USA',
-    profilePicture: 'https://ui-avatars.com/api/?name=Emma+Watson&background=random',
-    coverPicture: 'https://images.unsplash.com/photo-1582653291997-079b4f45f91f?q=80&w=800',
-    services: [],
-    rating: 4.5,
-    totalReviews: 15,
-    completedJobs: 20,
-    memberSince: 'March 2023',
-    responseTime: '< 60',
-    reviews: [
-      {
-        rating: 5,
-        review: 'Great client! Clear communication and prompt payment.',
-        customer: 'Bob Smith',
-        customerImage: 'https://ui-avatars.com/api/?name=Bob+Smith&background=random',
-        date: '1 month ago',
-        jobCategory: 'Client Review'
-      }
-    ],
-    isVerified: false,
-    badges: ['Prompt Payer'],
-    availability: 'Available'
-  },
-  'user-3': {
-    id: 'user-3',
-    name: 'Michael Smith',
-    email: 'michael@example.com',
-    role: 'service_provider',
-    description: "Highly skilled plumber with 15+ years experience in residential and commercial settings. Specializing in emergency repairs, installations, and maintenance services.",
-    mobile: '+1 (456) 789-0123',
-    address: '789 Oak St',
-    city: 'Chicago',
-    state: 'IL',
-    country: 'USA',
-    profilePicture: 'https://ui-avatars.com/api/?name=Michael+Smith&background=random',
-    coverPicture: 'https://images.unsplash.com/photo-1580341289255-5b47c98a59dd?q=80&w=800',
-    services: [
-      {
-        name: 'Emergency Plumbing',
-        description: '24/7 emergency plumbing service for leaks, bursts, and blockages',
-        price: 75,
-        category: 'Plumbing',
-        rating: 4.9,
-        completedJobs: 178
-      },
-      {
-        name: 'Bathroom Installation',
-        description: 'Complete bathroom fitting and installation services',
-        price: 65,
-        category: 'Plumbing',
-        rating: 4.8,
-        completedJobs: 92
-      }
-    ],
-    rating: 4.9,
-    totalReviews: 270,
-    completedJobs: 320,
-    memberSince: 'May 2019',
-    responseTime: '< 15',
-    reviews: [
-      {
-        rating: 5,
-        review: 'Michael responded within minutes to our emergency. Fixed our burst pipe quickly and professionally.',
-        customer: 'Laura Chen',
-        customerImage: 'https://ui-avatars.com/api/?name=Laura+Chen&background=random',
-        date: '3 days ago',
-        jobCategory: 'Plumbing'
-      },
-      {
-        rating: 5,
-        review: 'Exceptional service. Completed our bathroom installation ahead of schedule and under budget.',
-        customer: 'David Wilson',
-        customerImage: 'https://ui-avatars.com/api/?name=David+Wilson&background=random',
-        date: '2 weeks ago',
-        jobCategory: 'Plumbing'
-      }
-    ],
-    isVerified: true,
-    badges: ['Top Rated', 'Elite Provider', 'Background Checked', 'Quick Responder'],
-    availability: 'Busy Until Tomorrow'
-  }
-};
+// const usersData: Record<string, UserProfile> = {
+//   'user-1': {
+//     id: 'user-1',
+//     name: 'John Doe',
+//     email: 'john@example.com',
+//     role: 'service_provider',
+//     description: "Experienced professional with over 10 years in plumbing and electrical services. Dedicated to providing high-quality work and excellent customer service. Available for both residential and commercial projects.",
+//     mobile: '+1 (234) 567-8900',
+//     address: '123 Main St',
+//     city: 'New York',
+//     state: 'NY',
+//     country: 'USA',
+//     profilePicture: 'https://ui-avatars.com/api/?name=John+Doe&background=random',
+//     coverPicture: 'https://images.unsplash.com/photo-1556912172-45b7abe8b7e1?q=80&w=800',
+//     services: [
+//       {
+//         name: 'Plumbing Service',
+//         description: 'Professional plumbing solutions for residential and commercial properties',
+//         price: 50,
+//         category: 'Plumbing',
+//         rating: 4.9,
+//         completedJobs: 124
+//       },
+//       {
+//         name: 'Electrical Repairs',
+//         description: 'Complete electrical services including installations and maintenance',
+//         price: 60,
+//         category: 'Electrical',
+//         rating: 4.7,
+//         completedJobs: 89
+//       }
+//     ],
+//     rating: 4.8,
+//     totalReviews: 213,
+//     completedJobs: 245,
+//     memberSince: 'January 2022',
+//     responseTime: '< 30',
+//     reviews: [
+//       {
+//         rating: 5,
+//         review: 'Excellent service! John was professional, punctual and did an amazing job fixing our plumbing issues.',
+//         customer: 'Sarah Mitchell',
+//         customerImage: 'https://ui-avatars.com/api/?name=Sarah+Mitchell&background=random',
+//         date: '2 days ago',
+//         jobCategory: 'Plumbing'
+//       },
+//       {
+//         rating: 4,
+//         review: 'Very professional and efficient. Would definitely recommend!',
+//         customer: 'Mike Johnson',
+//         customerImage: 'https://ui-avatars.com/api/?name=Mike+Johnson&background=random',
+//         date: '1 week ago',
+//         jobCategory: 'Electrical'
+//       },
+//       {
+//         rating: 5,
+//         review: 'Outstanding service! Fixed my issue quickly and professionally.',
+//         customer: 'Emily Brown',
+//         customerImage: 'https://ui-avatars.com/api/?name=Emily+Brown&background=random',
+//         date: '2 weeks ago',
+//         jobCategory: 'Plumbing'
+//       }
+//     ],
+//     isVerified: true,
+//     badges: ['Top Rated', 'Quick Responder', 'Background Checked'],
+//     availability: 'Available Now'
+//   },
+//   'user-2': {
+//     id: 'user-2',
+//     name: 'Emma Watson',
+//     email: 'emma@example.com',
+//     role: 'client',
+//     description: "Looking for reliable service providers for various home improvement projects. Prefer professionals with verifiable references and experience.",
+//     mobile: '+1 (345) 678-9012',
+//     address: '456 Elm St',
+//     city: 'Boston',
+//     state: 'MA',
+//     country: 'USA',
+//     profilePicture: 'https://ui-avatars.com/api/?name=Emma+Watson&background=random',
+//     coverPicture: 'https://images.unsplash.com/photo-1582653291997-079b4f45f91f?q=80&w=800',
+//     services: [],
+//     rating: 4.5,
+//     totalReviews: 15,
+//     completedJobs: 20,
+//     memberSince: 'March 2023',
+//     responseTime: '< 60',
+//     reviews: [
+//       {
+//         rating: 5,
+//         review: 'Great client! Clear communication and prompt payment.',
+//         customer: 'Bob Smith',
+//         customerImage: 'https://ui-avatars.com/api/?name=Bob+Smith&background=random',
+//         date: '1 month ago',
+//         jobCategory: 'Client Review'
+//       }
+//     ],
+//     isVerified: false,
+//     badges: ['Prompt Payer'],
+//     availability: 'Available'
+//   },
+//   'user-3': {
+//     id: 'user-3',
+//     name: 'Michael Smith',
+//     email: 'michael@example.com',
+//     role: 'service_provider',
+//     description: "Highly skilled plumber with 15+ years experience in residential and commercial settings. Specializing in emergency repairs, installations, and maintenance services.",
+//     mobile: '+1 (456) 789-0123',
+//     address: '789 Oak St',
+//     city: 'Chicago',
+//     state: 'IL',
+//     country: 'USA',
+//     profilePicture: 'https://ui-avatars.com/api/?name=Michael+Smith&background=random',
+//     coverPicture: 'https://images.unsplash.com/photo-1580341289255-5b47c98a59dd?q=80&w=800',
+//     services: [
+//       {
+//         name: 'Emergency Plumbing',
+//         description: '24/7 emergency plumbing service for leaks, bursts, and blockages',
+//         price: 75,
+//         category: 'Plumbing',
+//         rating: 4.9,
+//         completedJobs: 178
+//       },
+//       {
+//         name: 'Bathroom Installation',
+//         description: 'Complete bathroom fitting and installation services',
+//         price: 65,
+//         category: 'Plumbing',
+//         rating: 4.8,
+//         completedJobs: 92
+//       }
+//     ],
+//     rating: 4.9,
+//     totalReviews: 270,
+//     completedJobs: 320,
+//     memberSince: 'May 2019',
+//     responseTime: '< 15',
+//     reviews: [
+//       {
+//         rating: 5,
+//         review: 'Michael responded within minutes to our emergency. Fixed our burst pipe quickly and professionally.',
+//         customer: 'Laura Chen',
+//         customerImage: 'https://ui-avatars.com/api/?name=Laura+Chen&background=random',
+//         date: '3 days ago',
+//         jobCategory: 'Plumbing'
+//       },
+//       {
+//         rating: 5,
+//         review: 'Exceptional service. Completed our bathroom installation ahead of schedule and under budget.',
+//         customer: 'David Wilson',
+//         customerImage: 'https://ui-avatars.com/api/?name=David+Wilson&background=random',
+//         date: '2 weeks ago',
+//         jobCategory: 'Plumbing'
+//       }
+//     ],
+//     isVerified: true,
+//     badges: ['Top Rated', 'Elite Provider', 'Background Checked', 'Quick Responder'],
+//     availability: 'Busy Until Tomorrow'
+//   }
+// };
 
 export default function ProfilePage(): JSX.Element {
-  const params = useParams();
-  const userId = params?.id as string;
+  const params = useSearchParams();
+  const userId = params.get('userId') || 'user-1'; // Default to 'user-1' if no userId is provided
   console.log(userId)
-  
+
   const [user, setUser] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isError, setIsError] = useState<boolean>(false);
@@ -225,23 +225,27 @@ export default function ProfilePage(): JSX.Element {
   const [visibleReviews, setVisibleReviews] = useState<number>(3);
 
   useEffect(() => {
-    const fetchUserData = async (): Promise<void> => {
+    const fetchUserData = async () => {
       try {
         setIsLoading(true);
-        
-        // Simulate API delay for realistic UX
-        await new Promise(resolve => setTimeout(resolve, 500));
-        
-        // Get user data from our hardcoded collection
-        const userData = usersData[userId];
-        
+
+        // Fetch user data from the API or database
+        const userData = await fetch(`/api/users?userId=${userId}`)
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('Network response was not ok');
+            }
+            return response.json();
+          });
+          console.log(userData)
+
         if (!userData) {
           setIsError(true);
           setIsLoading(false);
           return;
         }
-        
-        setUser(userData);
+
+        setUser(userData[0]);
         setIsLoading(false);
       } catch (error) {
         console.error('Error fetching user data:', error);
@@ -249,7 +253,7 @@ export default function ProfilePage(): JSX.Element {
         setIsLoading(false);
       }
     };
-    
+
     if (userId) {
       fetchUserData();
     }
@@ -258,7 +262,7 @@ export default function ProfilePage(): JSX.Element {
   // Handle showing more reviews
   const handleShowMoreReviews = (): void => {
     if (user) {
-      setVisibleReviews(prev => 
+      setVisibleReviews(prev =>
         Math.min(prev + 3, user.reviews.length)
       );
     }
@@ -323,7 +327,7 @@ export default function ProfilePage(): JSX.Element {
                   className="object-cover"
                 />
               </div>
-              <button 
+              <button
                 className="absolute bottom-2 right-2 bg-blue-500 p-2 rounded-full"
                 type="button"
                 aria-label="Change profile picture"
@@ -501,8 +505,8 @@ export default function ProfilePage(): JSX.Element {
                             height={40}
                             className="rounded-full ring-2 ring-gray-100"
                           />
-                          <div className="absolute -bottom-1 -right-1 bg-green-500 w-3 h-3 rounded-full border-2" 
-                               aria-hidden="true"></div>
+                          <div className="absolute -bottom-1 -right-1 bg-green-500 w-3 h-3 rounded-full border-2"
+                            aria-hidden="true"></div>
                         </div>
                         <div className="flex-1">
                           <div className="flex items-center justify-between">
@@ -517,7 +521,7 @@ export default function ProfilePage(): JSX.Element {
                                   className={`w-4 h-4 ${i < review.rating
                                     ? 'text-yellow-400'
                                     : 'text-gray-300'
-                                  }`}
+                                    }`}
                                   aria-hidden="true"
                                 />
                               ))}
@@ -604,11 +608,10 @@ export default function ProfilePage(): JSX.Element {
             {/* Availability */}
             <div className="rounded-lg shadow-sm p-6 border">
               <h2 className="text-xl font-semibold mb-4">Availability</h2>
-              <div className={`inline-flex items-center px-3 py-1 rounded-full ${
-                user.availability.includes('Available') 
-                  ? 'bg-green-100 text-green-800' 
-                  : 'bg-amber-100 text-amber-800'
-              }`}>
+              <div className={`inline-flex items-center px-3 py-1 rounded-full ${user.availability.includes('Available')
+                ? 'bg-green-100 text-green-800'
+                : 'bg-amber-100 text-amber-800'
+                }`}>
                 {user.availability}
               </div>
             </div>

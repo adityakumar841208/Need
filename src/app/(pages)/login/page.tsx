@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Icons } from "@/components/icons"
 import { FcGoogle } from 'react-icons/fc'
 import { z } from 'zod'
+import { useRouter } from 'next/navigation'
 
 
 
@@ -18,6 +19,7 @@ export default function LoginPage() {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [error, setError] = useState({ 'email': '', 'password': '' })
+    const router = useRouter()
 
     const loginSchema = z.object({
         email: z.string().email(),
@@ -45,6 +47,7 @@ export default function LoginPage() {
                 headers: {
                     "Content-Type": "application/json",
                 },
+                credentials: "include",
             });
 
             // Handle response
@@ -54,12 +57,13 @@ export default function LoginPage() {
                 throw new Error(data.message || "Login failed");
             }
 
+            router.push("/home/dashboard"); // Redirect to dashboard or home page
+
             // if (response.ok) {
             //     console.log("Login successful:", data);
             //     window.location.href = "/dashboard"; // Or use a router push
             // }
-            alert(response.ok ? "Login successful" : "Login failed")
-
+            
             console.log("Login successful:", data);
         } catch (error: any) {
             if (error.errors) {

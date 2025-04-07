@@ -3,6 +3,8 @@ import { useState } from 'react';
 import Image from 'next/image';
 import { FaCamera, FaTimes } from 'react-icons/fa';
 import { Button } from '@/components/ui/button';
+import { set } from 'mongoose';
+import { FaStar } from 'react-icons/fa';
 
 interface EditProfileProps {
     user: any;
@@ -12,15 +14,18 @@ interface EditProfileProps {
 
 export default function EditProfile({ user, onClose, onSave }: EditProfileProps) {
     const [formData, setFormData] = useState({
-        name: user.name,
-        email: user.email,
-        mobile: user.mobile,
-        address: user.address,
-        city: user.city,
-        state: user.state,
-        country: user.country,
-        description: user.description,
+        name: user.name || '',
+        email: user.email || '',
+        mobile: user.mobile || '',
+        address: user.address || '',
+        city: user.city || '',
+        state: user.state || '',
+        country: user.country || '',
+        description: user.description || '',
+        services: Array.isArray(user.services) ? [...user.services] : [] // Add services to formData
     });
+    const [isAddingServices, setIsAddingServices] = useState(false)
+    console.log(isAddingServices)
 
     const [activeTab, setActiveTab] = useState('personal');
 
@@ -34,10 +39,67 @@ export default function EditProfile({ user, onClose, onSave }: EditProfileProps)
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+        
+        // Include everything from formData, including services
         onSave({
             ...user,
             ...formData
         });
+    };
+
+    // Add these functions to your component
+    const [newService, setNewService] = useState({
+        name: '',
+        description: '',
+        price: 0,
+        category: '',
+        rating: 0,
+        completedJobs: 0
+    });
+
+    // Handle changes to new service form fields
+    const handleServiceChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        const { name, value } = e.target;
+        setNewService(prev => ({
+            ...prev,
+            [name.replace('service', '').toLowerCase()]: name === 'servicePrice' ? parseFloat(value) || 0 : value
+        }));
+    };
+
+    // Add a new service
+    const addService = () => {
+        // Validate service data
+        if (!newService.name || !newService.description || !newService.price || !newService.category) {
+            alert('Please fill in all service fields');
+            return;
+        }
+        
+        // Update formData with new service
+        setFormData(prev => ({
+            ...prev,
+            services: [...prev.services, newService]
+        }));
+        
+        // Reset new service form
+        setNewService({
+            name: '',
+            description: '',
+            price: 0,
+            category: '',
+            rating: 0,
+            completedJobs: 0
+        });
+        
+        // Close the add service form
+        setIsAddingServices(false);
+    };
+
+    // Remove a service
+    const removeService = (index: number) => {
+        setFormData(prev => ({
+            ...prev,
+            services: prev.services.filter((_, i) => i !== index)
+        }));
     };
 
     return (
@@ -45,7 +107,7 @@ export default function EditProfile({ user, onClose, onSave }: EditProfileProps)
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-hidden">
                 <div className="flex justify-between items-center p-6 border-b">
                     <h2 className="text-2xl font-semibold">Edit Profile</h2>
-                    <button 
+                    <button
                         onClick={onClose}
                         className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
                     >
@@ -56,25 +118,25 @@ export default function EditProfile({ user, onClose, onSave }: EditProfileProps)
                 <div className="flex flex-col md:flex-row h-[calc(90vh-80px)]">
                     {/* Sidebar */}
                     <div className="w-full md:w-64 border-r p-4 space-y-2">
-                        <button 
+                        <button
                             className={`w-full text-left p-3 rounded-lg ${activeTab === 'personal' ? 'bg-blue-50 text-blue-600 dark:bg-blue-900 dark:text-blue-300' : 'hover:bg-gray-100 dark:hover:bg-gray-700'}`}
                             onClick={() => setActiveTab('personal')}
                         >
                             Personal Information
                         </button>
-                        <button 
+                        <button
                             className={`w-full text-left p-3 rounded-lg ${activeTab === 'contact' ? 'bg-blue-50 text-blue-600 dark:bg-blue-900 dark:text-blue-300' : 'hover:bg-gray-100 dark:hover:bg-gray-700'}`}
                             onClick={() => setActiveTab('contact')}
                         >
                             Contact Details
                         </button>
-                        <button 
+                        <button
                             className={`w-full text-left p-3 rounded-lg ${activeTab === 'services' ? 'bg-blue-50 text-blue-600 dark:bg-blue-900 dark:text-blue-300' : 'hover:bg-gray-100 dark:hover:bg-gray-700'}`}
                             onClick={() => setActiveTab('services')}
                         >
                             Services
                         </button>
-                        <button 
+                        <button
                             className={`w-full text-left p-3 rounded-lg ${activeTab === 'photos' ? 'bg-blue-50 text-blue-600 dark:bg-blue-900 dark:text-blue-300' : 'hover:bg-gray-100 dark:hover:bg-gray-700'}`}
                             onClick={() => setActiveTab('photos')}
                         >
@@ -184,13 +246,22 @@ export default function EditProfile({ user, onClose, onSave }: EditProfileProps)
                                     <div>
                                         <label className="block text-sm font-medium mb-2">Profile Picture</label>
                                         <div className="flex items-center space-x-4">
-                                            <div className="relative w-24 h-24 rounded-full overflow-hidden">
-                                                <Image
-                                                    src={user.profilePicture}
-                                                    alt="Profile"
-                                                    fill
-                                                    className="object-cover"
-                                                />
+                                            <div className="relative w-24 h-24 rounded-full overflow-hidden bg-gradient-to-br from-blue-400 to-purple-500">
+                                                {user.profilePicture && user.profilePicture !== 'undefined' ? (
+                                                    <Image
+                                                        src={user.profilePicture}
+                                                        alt="Profile"
+                                                        fill
+                                                        className="object-cover"
+                                                    />
+                                                ) : (
+                                                    <div className="w-full h-full flex items-center justify-center">
+                                                        <span className="text-2xl font-bold text-white">
+                                                            {user.name ? user.name.charAt(0).toUpperCase() :
+                                                                user.email ? user.email.charAt(0).toUpperCase() : 'U'}
+                                                        </span>
+                                                    </div>
+                                                )}
                                             </div>
                                             <div>
                                                 <Button type="button" variant="outline" className="mb-2">
@@ -203,17 +274,26 @@ export default function EditProfile({ user, onClose, onSave }: EditProfileProps)
                                             </div>
                                         </div>
                                     </div>
-                                    
+
                                     <div>
                                         <label className="block text-sm font-medium mb-2">Cover Photo</label>
                                         <div className="space-y-2">
-                                            <div className="relative w-full h-40 rounded-lg overflow-hidden">
-                                                <Image
-                                                    src={user.coverPicture}
-                                                    alt="Cover"
-                                                    fill
-                                                    className="object-cover"
-                                                />
+                                            <div className="relative w-full h-40 rounded-lg overflow-hidden bg-gradient-to-r from-blue-500 to-purple-500">
+                                                {user.coverPicture && user.coverPicture !== 'undefined' ? (
+                                                    <Image
+                                                        src={user.coverPicture}
+                                                        alt="Cover"
+                                                        fill
+                                                        className="object-cover"
+                                                    />
+                                                ) : (
+                                                    <Image
+                                                        src='/DefaultCover.png'
+                                                        alt="Cover"
+                                                        fill
+                                                        className="object-cover"
+                                                    />
+                                                )}
                                             </div>
                                             <Button type="button" variant="outline">
                                                 <FaCamera className="w-4 h-4 mr-2" />
@@ -233,43 +313,143 @@ export default function EditProfile({ user, onClose, onSave }: EditProfileProps)
                                     <p className="text-sm text-gray-500">
                                         Manage the services you offer to clients.
                                     </p>
-                                    
-                                    <div className="space-y-4">
-                                        {user.services.map((service: any, index: number) => (
-                                            <div key={index} className="border rounded-lg p-4">
-                                                <div className="flex justify-between items-center mb-2">
-                                                    <h4 className="font-medium">{service.name}</h4>
-                                                    <button 
-                                                        type="button"
-                                                        className="text-blue-600 hover:text-blue-800"
-                                                    >
-                                                        Edit
-                                                    </button>
+
+                                    {/* Inline service add form */}
+                                    {isAddingServices && (
+                                        <div className="border rounded-lg p-4 bg-gray-50 dark:bg-gray-700 mb-6">
+                                            <div className="flex justify-between items-center mb-4">
+                                                <h3 className="font-medium">Add New Service</h3>
+                                                <button
+                                                    type="button" // Add type="button" to prevent form submission
+                                                    onClick={() => setIsAddingServices(false)}
+                                                    className="text-gray-500 hover:text-gray-700"
+                                                >
+                                                    <FaTimes className="w-4 h-4" />
+                                                </button>
+                                            </div>
+                                            {/* Use a separate form for service management */}
+                                            <div>
+                                                <div className="mb-4">
+                                                    <label className="block text-sm font-medium mb-1">Service Name</label>
+                                                    <input
+                                                        type="text"
+                                                        name="serviceName"
+                                                        id="serviceName"
+                                                        className="w-full p-2 border rounded-md"
+                                                        placeholder="e.g. Plumbing Service"
+                                                        required
+                                                        value={newService.name}
+                                                        onChange={handleServiceChange}
+                                                    />
                                                 </div>
-                                                <p className="text-sm text-gray-600 mb-2">{service.description}</p>
-                                                <div className="flex justify-between text-sm">
-                                                    <span>${service.price}/hr</span>
-                                                    <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full">
-                                                        {service.category}
-                                                    </span>
+                                                <div className="mb-4">
+                                                    <label className="block text-sm font-medium mb-1">Description</label>
+                                                    <textarea
+                                                        name="serviceDescription"
+                                                        id="serviceDescription"
+                                                        rows={4}
+                                                        className="w-full p-2 border rounded-md"
+                                                        placeholder="Provide a detailed description of your service"
+                                                        required
+                                                        value={newService.description}
+                                                        onChange={handleServiceChange}
+                                                    ></textarea>
+                                                </div>
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                    <div className="mb-4">
+                                                        <label className="block text-sm font-medium mb-1">Price ($/hr)</label>
+                                                        <input
+                                                            type="number"
+                                                            name="servicePrice"
+                                                            id="servicePrice"
+                                                            min="0"
+                                                            step="0.01"
+                                                            className="w-full p-2 border rounded-md"
+                                                            placeholder="50"
+                                                            required
+                                                            value={newService.price}
+                                                            onChange={handleServiceChange}
+                                                        />
+                                                    </div>
+                                                    <div className="mb-4">
+                                                        <label className="block text-sm font-medium mb-1">Category</label>
+                                                        <input
+                                                            type="text"
+                                                            name="serviceCategory"
+                                                            id="serviceCategory"
+                                                            className="w-full p-2 border rounded-md"
+                                                            placeholder="e.g. Plumbing, Electrical"
+                                                            required
+                                                            value={newService.category}
+                                                            onChange={handleServiceChange}
+                                                        />
+                                                    </div>
+                                                </div>
+
+                                                <div className="flex justify-end space-x-2 mt-4">
+                                                    <Button type="button" variant="outline" onClick={() => setIsAddingServices(false)}>
+                                                        Cancel
+                                                    </Button>
+                                                    <Button 
+                                                        type="button" 
+                                                        onClick={addService}
+                                                    >
+                                                        Add Service
+                                                    </Button>
                                                 </div>
                                             </div>
-                                        ))}
+                                        </div>
+                                    )}
+
+                                    {/* Service list */}
+                                    <div className="space-y-4">
+                                        {formData.services.length > 0 ? (
+                                            formData.services.map((service: any, index: number) => (
+                                                <div key={index} className="border rounded-lg p-4 hover:shadow-md transition-shadow duration-200">
+                                                    <div className="flex justify-between items-center mb-2">
+                                                        <h4 className="font-medium">{service.name}</h4>
+                                                        <div className="flex space-x-2">
+                                                            <button
+                                                                type="button"
+                                                                className="text-red-600 hover:text-red-800"
+                                                                onClick={() => removeService(index)}
+                                                            >
+                                                                Delete
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                    <p className="text-sm text-gray-600 mb-2">{service.description}</p>
+                                                    <div className="flex justify-between items-center text-sm">
+                                                        <span className="font-medium">${service.price}/hr</span>
+                                                        <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full">
+                                                            {service.category}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            ))
+                                        ) : (
+                                            <div className="text-center py-8 text-gray-500">
+                                                <p>You haven't added any services yet.</p>
+                                            </div>
+                                        )}
                                     </div>
-                                    
-                                    <Button 
-                                        type="button"
-                                        variant="outline"
-                                        className="w-full mt-4"
-                                    >
-                                        + Add New Service
-                                    </Button>
+
+                                    {!isAddingServices && (
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            className="w-full mt-4"
+                                            onClick={() => setIsAddingServices(true)}
+                                        >
+                                            <span className="mr-2">+</span> Add New Service
+                                        </Button>
+                                    )}
                                 </div>
                             )}
 
                             <div className="flex justify-end space-x-4 mt-8 pt-4 border-t">
-                                <Button 
-                                    type="button" 
+                                <Button
+                                    type="button"
                                     variant="outline"
                                     onClick={onClose}
                                 >
