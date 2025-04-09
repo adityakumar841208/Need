@@ -3,8 +3,7 @@ import { useState } from 'react';
 import Image from 'next/image';
 import { FaCamera, FaTimes } from 'react-icons/fa';
 import { Button } from '@/components/ui/button';
-import { set } from 'mongoose';
-import { FaStar } from 'react-icons/fa';
+import { CldUploadWidget } from 'next-cloudinary';
 
 interface EditProfileProps {
     user: any;
@@ -21,13 +20,17 @@ export default function EditProfile({ user, onClose, onSave }: EditProfileProps)
         city: user.city || '',
         state: user.state || '',
         country: user.country || '',
+        profilePicture: user.profilePicture || '',
+        coverPicture: user.coverPicture || '',
+        available: user.available || false,
         description: user.description || '',
         services: Array.isArray(user.services) ? [...user.services] : [] // Add services to formData
     });
-    const [isAddingServices, setIsAddingServices] = useState(false)
-    console.log(isAddingServices)
-
+    const [isAddingServices, setIsAddingServices] = useState(false);
     const [activeTab, setActiveTab] = useState('personal');
+
+    const [isUploadingProfile, setIsUploadingProfile] = useState(false);
+    const [isUploadingCover, setIsUploadingCover] = useState(false);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
@@ -39,7 +42,7 @@ export default function EditProfile({ user, onClose, onSave }: EditProfileProps)
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        
+
         // Include everything from formData, including services
         onSave({
             ...user,
@@ -47,7 +50,42 @@ export default function EditProfile({ user, onClose, onSave }: EditProfileProps)
         });
     };
 
-    // Add these functions to your component
+    const handleProfileUploadSuccess = (result: any) => {
+        const url = result.info.secure_url || result.info.url; // Fallback to `url`
+        console.log(url)
+        if (url) {
+            setFormData(prev => ({
+                ...prev,
+                profilePicture: url,
+            }));
+        } else {
+            console.error('No URL found in the upload result');
+        }
+        setIsUploadingProfile(false);
+    };
+
+    const handleCoverUploadSuccess = (result: any) => {
+        console.log('Cloudinary upload result:', result); // Debugging
+        const url = result.info.secure_url; // Ensure this field exists
+        if (url) {
+            setFormData(prev => ({
+                ...prev,
+                coverPicture: url,
+            }));
+        } else {
+            console.error('No secure_url found in the upload result');
+        }
+        setIsUploadingCover(false);
+    };
+
+    const handleUploadStart = (type: 'profile' | 'cover') => {
+        if (type === 'profile') {
+            setIsUploadingProfile(true);
+        } else {
+            setIsUploadingCover(true);
+        }
+    };
+
     const [newService, setNewService] = useState({
         name: '',
         description: '',
@@ -57,7 +95,6 @@ export default function EditProfile({ user, onClose, onSave }: EditProfileProps)
         completedJobs: 0
     });
 
-    // Handle changes to new service form fields
     const handleServiceChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         setNewService(prev => ({
@@ -66,21 +103,17 @@ export default function EditProfile({ user, onClose, onSave }: EditProfileProps)
         }));
     };
 
-    // Add a new service
     const addService = () => {
-        // Validate service data
         if (!newService.name || !newService.description || !newService.price || !newService.category) {
             alert('Please fill in all service fields');
             return;
         }
-        
-        // Update formData with new service
+
         setFormData(prev => ({
             ...prev,
             services: [...prev.services, newService]
         }));
-        
-        // Reset new service form
+
         setNewService({
             name: '',
             description: '',
@@ -89,12 +122,10 @@ export default function EditProfile({ user, onClose, onSave }: EditProfileProps)
             rating: 0,
             completedJobs: 0
         });
-        
-        // Close the add service form
+
         setIsAddingServices(false);
     };
 
-    // Remove a service
     const removeService = (index: number) => {
         setFormData(prev => ({
             ...prev,
@@ -116,7 +147,6 @@ export default function EditProfile({ user, onClose, onSave }: EditProfileProps)
                 </div>
 
                 <div className="flex flex-col md:flex-row h-[calc(90vh-80px)]">
-                    {/* Sidebar */}
                     <div className="w-full md:w-64 border-r p-4 space-y-2">
                         <button
                             className={`w-full text-left p-3 rounded-lg ${activeTab === 'personal' ? 'bg-blue-50 text-blue-600 dark:bg-blue-900 dark:text-blue-300' : 'hover:bg-gray-100 dark:hover:bg-gray-700'}`}
@@ -144,7 +174,6 @@ export default function EditProfile({ user, onClose, onSave }: EditProfileProps)
                         </button>
                     </div>
 
-                    {/* Main content */}
                     <div className="flex-1 p-6 overflow-y-auto">
                         <form onSubmit={handleSubmit}>
                             {activeTab === 'personal' && (
@@ -247,9 +276,9 @@ export default function EditProfile({ user, onClose, onSave }: EditProfileProps)
                                         <label className="block text-sm font-medium mb-2">Profile Picture</label>
                                         <div className="flex items-center space-x-4">
                                             <div className="relative w-24 h-24 rounded-full overflow-hidden bg-gradient-to-br from-blue-400 to-purple-500">
-                                                {user.profilePicture && user.profilePicture !== 'undefined' ? (
+                                                {formData.profilePicture && formData.profilePicture !== 'undefined' ? (
                                                     <Image
-                                                        src={user.profilePicture}
+                                                        src={formData.profilePicture}
                                                         alt="Profile"
                                                         fill
                                                         className="object-cover"
@@ -257,17 +286,48 @@ export default function EditProfile({ user, onClose, onSave }: EditProfileProps)
                                                 ) : (
                                                     <div className="w-full h-full flex items-center justify-center">
                                                         <span className="text-2xl font-bold text-white">
-                                                            {user.name ? user.name.charAt(0).toUpperCase() :
-                                                                user.email ? user.email.charAt(0).toUpperCase() : 'U'}
+                                                            {formData.name ? formData.name.charAt(0).toUpperCase() :
+                                                                formData.email ? formData.email.charAt(0).toUpperCase() : 'U'}
                                                         </span>
                                                     </div>
                                                 )}
                                             </div>
                                             <div>
-                                                <Button type="button" variant="outline" className="mb-2">
-                                                    <FaCamera className="w-4 h-4 mr-2" />
-                                                    Upload New Photo
-                                                </Button>
+                                                <CldUploadWidget
+                                                    uploadPreset={process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET}
+                                                    onUpload={handleProfileUploadSuccess}
+                                                    options={{
+                                                        folder: 'images/profile', // Ensure the folder is set correctly
+                                                        maxFiles: 1,
+                                                        resourceType: "image",
+                                                        clientAllowedFormats: ["jpeg", "png", "jpg", "webp"],
+                                                        maxFileSize: 2000000, // 2MB
+                                                    }}
+                                                    onOpen={() => handleUploadStart('profile')}
+                                                    onSuccess={(result: any)=> handleProfileUploadSuccess(result)}
+                                                >
+                                                    {({ open }) => (
+                                                        <div
+                                                            className="mb-2 inline-block"
+                                                            onClick={() => open()}
+                                                        >
+                                                            <Button
+                                                                type="button"
+                                                                variant="outline"
+                                                                disabled={isUploadingProfile}
+                                                            >
+                                                                {isUploadingProfile ? (
+                                                                    <span className="flex items-center">
+                                                                        <div className="animate-spin mr-2 h-4 w-4 border-2 border-t-transparent border-blue-500 rounded-full"></div>
+                                                                        Uploading...
+                                                                    </span>
+                                                                ) : (
+                                                                    <><FaCamera className="w-4 h-4 mr-2" />Upload New Photo</>
+                                                                )}
+                                                            </Button>
+                                                        </div>
+                                                    )}
+                                                </CldUploadWidget>
                                                 <p className="text-xs text-gray-500">
                                                     Recommended size: 400x400px. Max 2MB.
                                                 </p>
@@ -279,9 +339,9 @@ export default function EditProfile({ user, onClose, onSave }: EditProfileProps)
                                         <label className="block text-sm font-medium mb-2">Cover Photo</label>
                                         <div className="space-y-2">
                                             <div className="relative w-full h-40 rounded-lg overflow-hidden bg-gradient-to-r from-blue-500 to-purple-500">
-                                                {user.coverPicture && user.coverPicture !== 'undefined' ? (
+                                                {formData.coverPicture && formData.coverPicture !== 'undefined' ? (
                                                     <Image
-                                                        src={user.coverPicture}
+                                                        src={formData.coverPicture}
                                                         alt="Cover"
                                                         fill
                                                         className="object-cover"
@@ -295,10 +355,33 @@ export default function EditProfile({ user, onClose, onSave }: EditProfileProps)
                                                     />
                                                 )}
                                             </div>
-                                            <Button type="button" variant="outline">
-                                                <FaCamera className="w-4 h-4 mr-2" />
-                                                Upload New Cover
-                                            </Button>
+                                            <CldUploadWidget
+                                                uploadPreset={process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET}
+                                                onUpload={handleCoverUploadSuccess}
+                                                options={{
+                                                    maxFiles: 1,
+                                                    resourceType: "image",
+                                                    clientAllowedFormats: ["jpeg", "png", "jpg", "webp"],
+                                                    maxFileSize: 5000000, // 5MB
+                                                }}
+                                                onOpen={() => handleUploadStart('cover')}
+                                                onSuccess={(result: any)=> handleCoverUploadSuccess(result)}
+                                            >
+                                                {({ open }) => (
+                                                    <Button
+                                                        type="button"
+                                                        variant="outline"
+                                                        onClick={() => open()}
+                                                        disabled={isUploadingCover}
+                                                    >
+                                                        {isUploadingCover ? (
+                                                            <span className="flex items-center"><div className="animate-spin mr-2 h-4 w-4 border-2 border-t-transparent border-blue-500 rounded-full"></div> Uploading...</span>
+                                                        ) : (
+                                                            <><FaCamera className="w-4 h-4 mr-2" />Upload New Cover</>
+                                                        )}
+                                                    </Button>
+                                                )}
+                                            </CldUploadWidget>
                                             <p className="text-xs text-gray-500">
                                                 Recommended size: 1200x400px. Max 5MB.
                                             </p>
@@ -314,20 +397,18 @@ export default function EditProfile({ user, onClose, onSave }: EditProfileProps)
                                         Manage the services you offer to clients.
                                     </p>
 
-                                    {/* Inline service add form */}
                                     {isAddingServices && (
                                         <div className="border rounded-lg p-4 bg-gray-50 dark:bg-gray-700 mb-6">
                                             <div className="flex justify-between items-center mb-4">
                                                 <h3 className="font-medium">Add New Service</h3>
                                                 <button
-                                                    type="button" // Add type="button" to prevent form submission
+                                                    type="button"
                                                     onClick={() => setIsAddingServices(false)}
                                                     className="text-gray-500 hover:text-gray-700"
                                                 >
                                                     <FaTimes className="w-4 h-4" />
                                                 </button>
                                             </div>
-                                            {/* Use a separate form for service management */}
                                             <div>
                                                 <div className="mb-4">
                                                     <label className="block text-sm font-medium mb-1">Service Name</label>
@@ -390,8 +471,8 @@ export default function EditProfile({ user, onClose, onSave }: EditProfileProps)
                                                     <Button type="button" variant="outline" onClick={() => setIsAddingServices(false)}>
                                                         Cancel
                                                     </Button>
-                                                    <Button 
-                                                        type="button" 
+                                                    <Button
+                                                        type="button"
                                                         onClick={addService}
                                                     >
                                                         Add Service
@@ -401,7 +482,6 @@ export default function EditProfile({ user, onClose, onSave }: EditProfileProps)
                                         </div>
                                     )}
 
-                                    {/* Service list */}
                                     <div className="space-y-4">
                                         {formData.services.length > 0 ? (
                                             formData.services.map((service: any, index: number) => (

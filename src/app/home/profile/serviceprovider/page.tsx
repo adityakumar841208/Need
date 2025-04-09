@@ -13,14 +13,14 @@ import { toast } from 'sonner';
 const DEFAULT_PROFILE_IMAGE = '/profile.webp';
 const DEFAULT_COVER_IMAGE = '/DefaultCover.png';
 
-export default function ServiceProviderProfile({ user, onProfileUpdate }: { user: any, onProfileUpdate?:()=>void }) {
+export default function ServiceProviderProfile({ user, onProfileUpdate }: { user: any, onProfileUpdate?: () => void }) {
     const [isEditing, setIsEditing] = useState(false);
     const [visibleReviews, setVisibleReviews] = useState(3);
     const [isUpdating, setIsUpdating] = useState(false);
-    
+
     // Get Redux dispatch function
     const dispatch = useAppDispatch();
-    
+
     // Fetch user profile on component mount
     useEffect(() => {
         dispatch(fetchUserProfile());
@@ -34,23 +34,23 @@ export default function ServiceProviderProfile({ user, onProfileUpdate }: { user
     const UpdateUser = async (updatedUser: any) => {
         try {
             setIsUpdating(true);
-            
+
             // Log the update for debugging
             console.log('Updating user:', updatedUser);
-            
+
             // Dispatch async thunk to update user profile
             const resultAction = await dispatch(updateUserProfile(updatedUser));
-            
+
             // Check if the action was fulfilled (success)
             if (updateUserProfile.fulfilled.match(resultAction)) {
                 // Success handling
-                
+
                 toast.success('Profile updated successfully');
                 console.log('Updated profile data:', resultAction.payload);
-                if(onProfileUpdate){
+                if (onProfileUpdate) {
                     onProfileUpdate(); // Call the parent function to refresh user data
                 }
-                
+
             } else {
                 // Error handling for rejected action
                 console.error('Update failed:', resultAction.error);
@@ -79,17 +79,17 @@ export default function ServiceProviderProfile({ user, onProfileUpdate }: { user
             )}
 
             {/* Cover Photo */}
-            <div className="relative w-full max-h-60 md:max-h-72 lg:max-h-80 overflow-hidden">
+            <div className="relative w-full max-h-60 md:max-h-72 lg:max-h-80 rounded-xl">
                 {coverImage && coverImage !== 'undefined' ? (
                     <Image
                         src={coverImage}
                         alt="Cover"
                         width={1200}
                         height={300}
-                        className="w-full h-full rounded-b-lg object-cover"
+                        className="w-full h-full rounded-b-3xl object-center"
                     />
                 ) : (
-                    <div className="w-full h-48 sm:h-60 md:h-72 lg:h-80 flex items-center justify-center rounded-b-lg overflow-hidden">
+                    <div className="w-full h-48 sm:h-60 md:h-72 lg:h-80 flex items-center justify-center">
                         <Image
                             src='/DefaultCover.png'
                             alt="CoverImage"
@@ -100,7 +100,7 @@ export default function ServiceProviderProfile({ user, onProfileUpdate }: { user
                     </div>
                 )}
                 <button className="absolute right-2 bottom-2 sm:right-4 sm:bottom-4 bg-white p-2 rounded-full shadow-md">
-                    <FaCamera className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
+                    <FaCamera className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" onClick={()=>setIsEditing(true)}/>
                 </button>
             </div>
 
@@ -129,7 +129,7 @@ export default function ServiceProviderProfile({ user, onProfileUpdate }: { user
                                 )}
                             </div>
                             <button className="absolute bottom-1 right-1 sm:bottom-2 sm:right-2 bg-blue-500 p-1.5 sm:p-2 rounded-full">
-                                <FaCamera className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
+                                <FaCamera className="w-3 h-3 sm:w-4 sm:h-4 text-white" onClick={()=> setIsEditing(true)}/>
                             </button>
                         </div>
 
@@ -361,7 +361,7 @@ export default function ServiceProviderProfile({ user, onProfileUpdate }: { user
 
                     {/* Right Column - Contact/Badges/Availability */}
                     <div className="space-y-4 sm:space-y-6">
-                        
+
                         {/* Contact Information */}
                         <div className="rounded-lg shadow-sm p-4 sm:p-6 border">
                             <h2 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">Contact Information</h2>
@@ -408,20 +408,27 @@ export default function ServiceProviderProfile({ user, onProfileUpdate }: { user
 
                         {/* Badges */}
                         <div className="rounded-lg shadow-sm p-4 sm:p-6 border relative">
-                            <button
-                                className="absolute top-3 sm:top-4 right-3 sm:right-4 p-1 sm:p-1.5 transition-colors duration-200"
-                            >
-                                <Button className='px-1.5 py-0.5 sm:px-2 sm:py-1 text-xs sm:text-sm'>Explore Badges</Button>
-                            </button>
                             <h2 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">Badges</h2>
-                            <div className="space-y-2 sm:space-y-3">
-                                {user.badges?.map((badge: any, index: any) => (
-                                    <div key={index} className="flex items-center space-x-2">
-                                        <FaCheck className="w-4 h-4 sm:w-5 sm:h-5 text-green-500" />
-                                        <span className="text-sm sm:text-base">{badge}</span>
-                                    </div>
-                                ))}
-                            </div>
+
+                            <Button className="mb-4 px-3 py-1.5 text-sm sm:text-base">
+                                Explore Badges
+                            </Button>
+
+                            {user.badges && user.badges.length > 0 ? (
+                                <div className="space-y-2 sm:space-y-3">
+                                    {user.badges.map((badge: any, index: any) => (
+                                        <div
+                                            key={index}
+                                            className="flex items-center space-x-2 p-2 border rounded-lg bg-gray-50"
+                                        >
+                                            <FaCheck className="w-5 h-5 text-green-500" />
+                                            <span className="text-sm sm:text-base font-medium">{badge}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <p className="text-sm text-gray-500">No badges earned yet.</p>
+                            )}
                         </div>
 
                         {/* Availability */}

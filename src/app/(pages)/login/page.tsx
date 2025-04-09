@@ -56,13 +56,9 @@ export default function LoginPage() {
             if (!response.ok) {
                 throw new Error(data.message || "Login failed");
             }
+            console.log(data)
 
-            router.push("/home/dashboard"); // Redirect to dashboard or home page
-
-            // if (response.ok) {
-            //     console.log("Login successful:", data);
-            //     window.location.href = "/dashboard"; // Or use a router push
-            // }
+            router.push("/home"); // Redirect to dashboard or home page
             
             console.log("Login successful:", data);
         } catch (error: any) {

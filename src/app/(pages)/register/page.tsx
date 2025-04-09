@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Icons } from "@/components/icons"
 import { FcGoogle } from 'react-icons/fc'
 import { z } from 'zod'
+import { useRouter } from 'next/router'
 
 
 
@@ -18,6 +19,7 @@ export default function LoginPage() {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [error, setError] = useState({ 'email': '', 'password': '' })
+    const router = useRouter()
 
     const loginSchema = z.object({
         email: z.string().email(),
@@ -56,12 +58,7 @@ export default function LoginPage() {
             }
 
             
-            // window.location.href = "/home"; // Or use a router push
-
-            // if (response.ok) {
-            //     console.log("Login successful:", data);
-            //     window.location.href = "/dashboard"; // Or use a router push
-            // }
+            router.push("/home");
 
             console.log("Register Successful", data);
         } catch (error: any) {
