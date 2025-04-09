@@ -9,9 +9,11 @@ interface EditProfileProps {
     user: any;
     onClose: () => void;
     onSave: (updatedUser: any) => void;
+    activeTab: string;
+    changeTab: (tab: string) => void;
 }
 
-export default function EditProfile({ user, onClose, onSave }: EditProfileProps) {
+export default function EditProfile({ user, onClose, onSave, activeTab, changeTab }: EditProfileProps) {
     const [formData, setFormData] = useState({
         name: user.name || '',
         email: user.email || '',
@@ -27,7 +29,6 @@ export default function EditProfile({ user, onClose, onSave }: EditProfileProps)
         services: Array.isArray(user.services) ? [...user.services] : [] // Add services to formData
     });
     const [isAddingServices, setIsAddingServices] = useState(false);
-    const [activeTab, setActiveTab] = useState('personal');
 
     const [isUploadingProfile, setIsUploadingProfile] = useState(false);
     const [isUploadingCover, setIsUploadingCover] = useState(false);
@@ -150,25 +151,25 @@ export default function EditProfile({ user, onClose, onSave }: EditProfileProps)
                     <div className="w-full md:w-64 border-r p-4 space-y-2">
                         <button
                             className={`w-full text-left p-3 rounded-lg ${activeTab === 'personal' ? 'bg-blue-50 text-blue-600 dark:bg-blue-900 dark:text-blue-300' : 'hover:bg-gray-100 dark:hover:bg-gray-700'}`}
-                            onClick={() => setActiveTab('personal')}
+                            onClick={() => changeTab('personal')}
                         >
                             Personal Information
                         </button>
                         <button
                             className={`w-full text-left p-3 rounded-lg ${activeTab === 'contact' ? 'bg-blue-50 text-blue-600 dark:bg-blue-900 dark:text-blue-300' : 'hover:bg-gray-100 dark:hover:bg-gray-700'}`}
-                            onClick={() => setActiveTab('contact')}
+                            onClick={() => changeTab('contact')}
                         >
                             Contact Details
                         </button>
                         <button
                             className={`w-full text-left p-3 rounded-lg ${activeTab === 'services' ? 'bg-blue-50 text-blue-600 dark:bg-blue-900 dark:text-blue-300' : 'hover:bg-gray-100 dark:hover:bg-gray-700'}`}
-                            onClick={() => setActiveTab('services')}
+                            onClick={() => changeTab('services')}
                         >
                             Services
                         </button>
                         <button
                             className={`w-full text-left p-3 rounded-lg ${activeTab === 'photos' ? 'bg-blue-50 text-blue-600 dark:bg-blue-900 dark:text-blue-300' : 'hover:bg-gray-100 dark:hover:bg-gray-700'}`}
-                            onClick={() => setActiveTab('photos')}
+                            onClick={() => changeTab('photos')}
                         >
                             Profile & Cover Photos
                         </button>
@@ -304,7 +305,7 @@ export default function EditProfile({ user, onClose, onSave }: EditProfileProps)
                                                         maxFileSize: 2000000, // 2MB
                                                     }}
                                                     onOpen={() => handleUploadStart('profile')}
-                                                    onSuccess={(result: any)=> handleProfileUploadSuccess(result)}
+                                                    onSuccess={(result: any) => handleProfileUploadSuccess(result)}
                                                 >
                                                     {({ open }) => (
                                                         <div
@@ -365,7 +366,7 @@ export default function EditProfile({ user, onClose, onSave }: EditProfileProps)
                                                     maxFileSize: 5000000, // 5MB
                                                 }}
                                                 onOpen={() => handleUploadStart('cover')}
-                                                onSuccess={(result: any)=> handleCoverUploadSuccess(result)}
+                                                onSuccess={(result: any) => handleCoverUploadSuccess(result)}
                                             >
                                                 {({ open }) => (
                                                     <Button

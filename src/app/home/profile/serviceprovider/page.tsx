@@ -17,7 +17,7 @@ export default function ServiceProviderProfile({ user, onProfileUpdate }: { user
     const [isEditing, setIsEditing] = useState(false);
     const [visibleReviews, setVisibleReviews] = useState(3);
     const [isUpdating, setIsUpdating] = useState(false);
-
+    const [activeTab, setActiveTab] = useState('personal');
     // Get Redux dispatch function
     const dispatch = useAppDispatch();
 
@@ -64,6 +64,7 @@ export default function ServiceProviderProfile({ user, onProfileUpdate }: { user
             setIsUpdating(false);
         }
     };
+    { console.log(activeTab) }
 
     return (
         <div className="min-h-screen">
@@ -75,6 +76,8 @@ export default function ServiceProviderProfile({ user, onProfileUpdate }: { user
                         UpdateUser(updatedUser);
                         setIsEditing(false);
                     }}
+                    activeTab={activeTab}
+                    changeTab={(tab: string) => setActiveTab(tab)}
                 />
             )}
 
@@ -100,7 +103,10 @@ export default function ServiceProviderProfile({ user, onProfileUpdate }: { user
                     </div>
                 )}
                 <button className="absolute right-2 bottom-2 sm:right-4 sm:bottom-4 bg-white p-2 rounded-full shadow-md">
-                    <FaCamera className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" onClick={()=>setIsEditing(true)}/>
+                    <FaCamera className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" onClick={() => {
+                        setActiveTab('photos');
+                        setIsEditing(true); // Delay setting `isEditing` slightly
+                    }} />
                 </button>
             </div>
 
@@ -129,7 +135,10 @@ export default function ServiceProviderProfile({ user, onProfileUpdate }: { user
                                 )}
                             </div>
                             <button className="absolute bottom-1 right-1 sm:bottom-2 sm:right-2 bg-blue-500 p-1.5 sm:p-2 rounded-full">
-                                <FaCamera className="w-3 h-3 sm:w-4 sm:h-4 text-white" onClick={()=> setIsEditing(true)}/>
+                                <FaCamera className="w-3 h-3 sm:w-4 sm:h-4 text-white" onClick={() => {
+                                    setActiveTab('photos');
+                                    setIsEditing(true);
+                                }} />
                             </button>
                         </div>
 
@@ -182,7 +191,10 @@ export default function ServiceProviderProfile({ user, onProfileUpdate }: { user
                                 <div className="mt-4 md:mt-0 flex justify-center md:justify-start space-x-3">
                                     <Button className='px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base'>Contact</Button>
                                     <button
-                                        onClick={() => setIsEditing(!isEditing)}
+                                        onClick={() => {
+                                            setActiveTab('personal');
+                                            setIsEditing(true);
+                                        }}
                                         className="inline-flex items-center px-3 py-1.5 sm:px-4 sm:py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
                                     >
                                         <FaPen className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" />
