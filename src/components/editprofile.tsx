@@ -161,12 +161,12 @@ export default function EditProfile({ user, onClose, onSave, activeTab, changeTa
                         >
                             Contact Details
                         </button>
-                        <button
+                        {user.role === 'serviceprovider' && <button
                             className={`w-full text-left p-3 rounded-lg ${activeTab === 'services' ? 'bg-blue-50 text-blue-600 dark:bg-blue-900 dark:text-blue-300' : 'hover:bg-gray-100 dark:hover:bg-gray-700'}`}
                             onClick={() => changeTab('services')}
                         >
                             Services
-                        </button>
+                        </button>}
                         <button
                             className={`w-full text-left p-3 rounded-lg ${activeTab === 'photos' ? 'bg-blue-50 text-blue-600 dark:bg-blue-900 dark:text-blue-300' : 'hover:bg-gray-100 dark:hover:bg-gray-700'}`}
                             onClick={() => changeTab('photos')}
@@ -391,7 +391,7 @@ export default function EditProfile({ user, onClose, onSave, activeTab, changeTa
                                 </div>
                             )}
 
-                            {activeTab === 'services' && (
+                            {activeTab === 'services' && user.role === 'serviceprovider' && (
                                 <div className="space-y-4">
                                     <h3 className="text-lg font-medium">Your Services</h3>
                                     <p className="text-sm text-gray-500">

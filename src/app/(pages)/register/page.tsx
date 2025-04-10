@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Icons } from "@/components/icons"
 import { FcGoogle } from 'react-icons/fc'
 import { z } from 'zod'
-import { useRouter } from 'next/router'
+import { useRouter } from 'next/navigation'
 
 
 

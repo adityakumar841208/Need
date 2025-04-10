@@ -1,13 +1,13 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { FaMapMarkerAlt, FaClock, FaUserCheck, FaBriefcase, FaStar, FaCheck, FaPen, FaPhone, FaEnvelope, FaCamera, FaHistory } from 'react-icons/fa';
 import { MdVerified, MdOutlineHome } from 'react-icons/md';
 import { Button } from '@/components/ui/button';
 import EditProfile from '@/components/editprofile';
-import { useAppDispatch } from '@/store/hooks';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { toast } from 'sonner';
-import { updateUserProfile } from '@/store/profile/profileSlice'
+import { fetchUserProfile, updateUserProfile } from '@/store/profile/profileSlice'
 
 // Default fallback images
 const DEFAULT_PROFILE_IMAGE = '/profile-placeholder.webp';
@@ -18,11 +18,17 @@ export default function CustomerProfile({ user, onProfileUpdate }: { user: any, 
     const [visibleHistory, setVisibleHistory] = useState(3); // Number of history items to show initially
     const [isUpdating, setIsUpdating] = useState(false); // State to track if the profile is being updated
     const dispatch = useAppDispatch();
+    const [activeTab, setActiveTab] = useState('personal'); // State to manage active tab
 
     // Handle the case where user is null or undefined
     if (!user) {
         return <div className="min-h-screen flex items-center justify-center">User data not available</div>;
     }
+
+    // Function to update user profile
+    useEffect(() => {
+        dispatch(fetchUserProfile())
+    }, [dispatch])
 
     const UpdateUser = async (updatedUser: any) => {
         try {
@@ -77,33 +83,72 @@ export default function CustomerProfile({ user, onProfileUpdate }: { user: any, 
                     user={user}
                     onClose={() => setIsEditing(false)}
                     onSave={(updatedUser) => {
-                        updatedUser(updatedUser);
+                        UpdateUser(updatedUser);
                         setIsEditing(false);
                     }}
+                    activeTab={activeTab}
+                    changeTab={(tab: string) => setActiveTab(tab)}
                 />
             )}
 
             {/* Cover Photo */}
-            <div className="relative w-full max-h-48 sm:max-h-60 md:max-h-72 lg:max-h-80 overflow-hidden p-2">
-                {hasCoverImage ? (
-                    <Image
-                        src={coverImage}
-                        alt="Cover"
-                        width={1200}
-                        height={400}
-                        className="object-cover w-full h-full rounded-lg"
-                    />
-                ) : (
-                    <div className="w-full h-48 sm:h-60 md:h-72 lg:h-80 rounded-lg bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center">
-                        <span className="text-8xl font-bold text-white opacity-30">
-                            {userInitial}
-                        </span>
-                    </div>
-                )}
-                <button className="absolute right-2 bottom-2 sm:right-4 sm:bottom-4 bg-white p-2 rounded-full shadow-md">
-                    <FaCamera className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
-                </button>
-            </div>
+            <>
+                {/* Mobile Cover Photo */}
+                <div className="relative w-full h-28 sm:hidden overflow-hidden rounded-b-3xl">
+                    {hasCoverImage ? (
+                        <Image
+                            src={coverImage}
+                            alt="Cover"
+                            width={800}
+                            height={100}
+                            className="w-full h-full object-cover"
+                        />
+                    ) : (
+                        <div className="w-full h-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center">
+                            <span className="text-6xl font-bold text-white opacity-30">
+                                {userInitial}
+                            </span>
+                        </div>
+                    )}
+                    <button className="absolute right-2 bottom-2 bg-white p-1.5 rounded-full shadow-md">
+                        <FaCamera
+                            className="w-4 h-4 text-gray-600"
+                            onClick={() => {
+                                setActiveTab('photos');
+                                setIsEditing(true);
+                            }}
+                        />
+                    </button>
+                </div>
+
+                {/* Desktop / Tablet Cover Photo */}
+                <div className="relative w-full hidden sm:block h-60 md:h-72 lg:h-80 overflow-hidden rounded-b-3xl">
+                    {hasCoverImage ? (
+                        <Image
+                            src={coverImage}
+                            alt="Cover"
+                            width={1200}
+                            height={400}
+                            className="w-full h-full object-cover"
+                        />
+                    ) : (
+                        <div className="w-full h-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center ">
+                            <span className="text-8xl font-bold text-white opacity-30">
+                                {userInitial}
+                            </span>
+                        </div>
+                    )}
+                    <button className="absolute right-4 bottom-4 bg-white p-2 rounded-full shadow-md">
+                        <FaCamera
+                            className="w-5 h-5 text-gray-600"
+                            onClick={() => {
+                                setActiveTab('photos');
+                                setIsEditing(true);
+                            }}
+                        />
+                    </button>
+                </div>  
+            </>
 
             {/* Profile Header */}
             <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 -mt-6 sm:-mt-8">
@@ -128,7 +173,10 @@ export default function CustomerProfile({ user, onProfileUpdate }: { user: any, 
                                 )}
                             </div>
                             <button className="absolute bottom-1 right-1 sm:bottom-2 sm:right-2 bg-blue-500 p-1.5 sm:p-2 rounded-full">
-                                <FaCamera className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
+                                <FaCamera className="w-3 h-3 sm:w-4 sm:h-4 text-white" onClick={() => {
+                                    setActiveTab('photos');
+                                    setIsEditing(true);
+                                }} />
                             </button>
                         </div>
 

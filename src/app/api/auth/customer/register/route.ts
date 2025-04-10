@@ -28,7 +28,8 @@ export async function POST(request: Request) {
             const customer = await Customer.create({
                 email: credentials.email,
                 password: hashedPassword,
-                auth: 'custom'
+                auth: 'custom',
+                role: 'customer'
             });
 
             // Generate Tokens

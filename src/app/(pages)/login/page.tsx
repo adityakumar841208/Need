@@ -10,6 +10,7 @@ import { Icons } from "@/components/icons"
 import { FcGoogle } from 'react-icons/fc'
 import { z } from 'zod'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 
 
 
@@ -56,18 +57,16 @@ export default function LoginPage() {
             if (!response.ok) {
                 throw new Error(data.message || "Login failed");
             }
-            console.log(data)
 
-            router.push("/home"); // Redirect to dashboard or home page
-            
             console.log("Login successful:", data);
+            router.push("/home"); // Redirect to dashboard or home page
         } catch (error: any) {
             if (error.errors) {
                 // Handle Zod validation errors
                 setError({
                     email: error.errors?.find((err: any) => err.path?.includes("email"))?.message || "",
                     password: error.errors?.find((err: any) => err.path?.includes("password"))?.message || "",
-                }); 
+                });
             } else {
                 console.log("An error occurred during login:", error.message);
             }
@@ -193,12 +192,12 @@ export default function LoginPage() {
                                 </Button>
                                 <p className="text-center text-sm text-muted-foreground">
                                     Don&apos;t have an account?{" "}
-                                    <a
+                                    <Link
                                         href="/register"
                                         className="font-medium text-primary hover:underline"
                                     >
                                         Register
-                                    </a>
+                                    </Link>
                                 </p>
                             </CardFooter>
                         </Card>

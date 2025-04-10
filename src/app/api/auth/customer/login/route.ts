@@ -52,13 +52,13 @@ export async function POST(request: Request) {
             });
 
             // ṣetting both access token and refresh token in the cookie
-            response.cookies.set('access_token', accessToken, {
+            response.cookies.set('accessToken', accessToken, {
                 httpOnly: true,
                 sameSite: 'lax',
                 maxAge: 60 * 60 * 24, // 1 day
             });
 
-            response.cookies.set('refresh_token', refreshToken, {
+            response.cookies.set('refreshToken', refreshToken, {
 
                 httpOnly: true,
                 sameSite: 'lax',

@@ -30,6 +30,9 @@ export default function ServiceProviderProfile({ user, onProfileUpdate }: { user
     const profileImage = user?.profilePicture || DEFAULT_PROFILE_IMAGE;
     const coverImage = user?.coverPicture || DEFAULT_COVER_IMAGE;
 
+    const userInitial = user.name ? user.name.charAt(0).toUpperCase() :
+        user.email ? user.email.charAt(0).toUpperCase() : 'U';
+
     // Updated function to use the async thunk from our profile slice
     const UpdateUser = async (updatedUser: any) => {
         try {
@@ -82,33 +85,65 @@ export default function ServiceProviderProfile({ user, onProfileUpdate }: { user
             )}
 
             {/* Cover Photo */}
-            <div className="relative w-full max-h-60 md:max-h-72 lg:max-h-80 rounded-xl">
-                {coverImage && coverImage !== 'undefined' ? (
-                    <Image
-                        src={coverImage}
-                        alt="Cover"
-                        width={1200}
-                        height={300}
-                        className="w-full h-full rounded-b-3xl object-center"
-                    />
-                ) : (
-                    <div className="w-full h-48 sm:h-60 md:h-72 lg:h-80 flex items-center justify-center">
+            <>
+                {/* Mobile Cover Photo */}
+                <div className="relative w-full h-28 sm:hidden overflow-hidden rounded-b-3xl">
+                    {coverImage && coverImage !== 'undefined' ? (
                         <Image
-                            src='/DefaultCover.png'
-                            alt="CoverImage"
+                            src={coverImage}
+                            alt="Cover"
+                            width={800}
+                            height={100}
+                            className="w-full h-full object-cover"
+                        />
+                    ) : (
+                        <div className="w-full h-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center">
+                            <span className="text-6xl font-bold text-white opacity-30">
+                                {userInitial}
+                            </span>
+                        </div>
+                    )}
+                    <button className="absolute right-2 bottom-2 bg-white p-1.5 rounded-full shadow-md">
+                        <FaCamera
+                            className="w-4 h-4 text-gray-600"
+                            onClick={() => {
+                                setActiveTab('photos');
+                                setIsEditing(true);
+                            }}
+                        />
+                    </button>
+                </div>
+
+                {/* Desktop / Tablet Cover Photo */}
+                <div className="relative w-full hidden sm:block h-60 md:h-72 lg:h-80 overflow-hidden rounded-b-3xl">
+                    {coverImage && coverImage !== 'undefined' ? (
+                        <Image
+                            src={coverImage}
+                            alt="Cover"
                             width={1200}
                             height={300}
                             className="w-full h-full object-center"
                         />
-                    </div>
-                )}
-                <button className="absolute right-2 bottom-2 sm:right-4 sm:bottom-4 bg-white p-2 rounded-full shadow-md">
-                    <FaCamera className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" onClick={() => {
-                        setActiveTab('photos');
-                        setIsEditing(true); // Delay setting `isEditing` slightly
-                    }} />
-                </button>
-            </div>
+                    ) : (
+                        <div className="w-full h-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center">
+                            <span className="text-8xl font-bold text-white opacity-30">
+                                {userInitial}
+                            </span>
+                        </div>
+                    )}
+                    <button className="absolute right-4 bottom-4 bg-white p-2 rounded-full shadow-md">
+                        <FaCamera
+                            className="w-5 h-5 text-gray-600"
+                            onClick={() => {
+                                setActiveTab('photos');
+                                setIsEditing(true);
+                            }}
+                        />
+                    </button>
+                </div>
+            </>
+
+
 
             {/* Profile Header */}
             <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 -mt-6 sm:-mt-8">

@@ -35,6 +35,7 @@ export async function PUT(req: Request) {
                 );
                 console.log("ServiceProvider update result:", updatedUser ? "Success" : "Not found");
             } else {
+                console.log(objectId);
                 updatedUser = await Customer.findByIdAndUpdate(
                     objectId,
                     { $set: updatedFields },
