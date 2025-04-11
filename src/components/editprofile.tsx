@@ -25,6 +25,10 @@ export default function EditProfile({ user, onClose, onSave, activeTab, changeTa
         profilePicture: user.profilePicture || '',
         coverPicture: user.coverPicture || '',
         available: user.available || false,
+        location: {
+            type: user.location?.type || 'Point',
+            coordinates: user.location?.coordinates || [0, 0],
+        },
         description: user.description || '',
         services: Array.isArray(user.services) ? [...user.services] : [] // Add services to formData
     });
@@ -173,6 +177,12 @@ export default function EditProfile({ user, onClose, onSave, activeTab, changeTa
                         >
                             Profile & Cover Photos
                         </button>
+                        <button
+                            className={`w-full text-left p-3 rounded-lg ${activeTab === 'location' ? 'bg-blue-50 text-blue-600 dark:bg-blue-900 dark:text-blue-300' : 'hover:bg-gray-100 dark:hover:bg-gray-700'}`}
+                            onClick={() => changeTab('location')}
+                        >
+                            Location Coordinates
+                        </button>
                     </div>
 
                     <div className="flex-1 p-6 overflow-y-auto">
@@ -200,6 +210,30 @@ export default function EditProfile({ user, onClose, onSave, activeTab, changeTa
                                             className="w-full p-2 border rounded-md"
                                         ></textarea>
                                     </div>
+                                    {/* Availability Section */}
+                                    {user.role === 'serviceprovider' && <div>
+                                        <label className="block text-sm font-medium mb-1">Availability</label>
+                                        <div className="flex items-center space-x-4">
+                                            <label className="flex items-center space-x-2">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={formData.available}
+                                                    onChange={(e) =>
+                                                        setFormData((prev) => ({
+                                                            ...prev,
+                                                            available: e.target.checked,
+                                                        }))
+                                                    }
+                                                    className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                                />
+                                                <span className="text-sm">Available</span>
+                                            </label>
+                                        </div>
+                                        <p className="text-xs text-gray-500 mt-1">
+                                            Toggle your availability status for clients.
+                                        </p>
+                                    </div>}
+
                                 </div>
                             )}
 
@@ -525,6 +559,89 @@ export default function EditProfile({ user, onClose, onSave, activeTab, changeTa
                                             <span className="mr-2">+</span> Add New Service
                                         </Button>
                                     )}
+                                </div>
+                            )}
+
+                            {activeTab === 'location' && (
+                                <div className="space-y-4">
+                                    <h3 className="text-lg font-medium">Set Your Location</h3>
+                                    <p className="text-sm text-gray-500">
+                                        Enter your location coordinates in latitude and longitude format or use the button to fetch your current location.
+                                    </p>
+                                    <p className="text-xs text-gray-500">
+                                        We store your location for calculating distances only.
+                                    </p>
+                                    <div>
+                                        <label className="block text-sm font-medium mb-1">Latitude</label>
+                                        <input
+                                            type="number"
+                                            name="latitude"
+                                            value={formData.location?.coordinates[1] || ''}
+                                            onChange={(e) => {
+                                                const latitude = parseFloat(e.target.value) || 0;
+                                                setFormData((prev) => ({
+                                                    ...prev,
+                                                    location: {
+                                                        type: 'Point',
+                                                        coordinates: [prev.location?.coordinates[0] || 0, latitude],
+                                                    },
+                                                }));
+                                            }}
+                                            className="w-full p-2 border rounded-md"
+                                            placeholder="e.g., 37.7749"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium mb-1">Longitude</label>
+                                        <input
+                                            type="number"
+                                            name="longitude"
+                                            value={formData.location?.coordinates[0] || ''}
+                                            onChange={(e) => {
+                                                const longitude = parseFloat(e.target.value) || 0;
+                                                setFormData((prev) => ({
+                                                    ...prev,
+                                                    location: {
+                                                        type: 'Point',
+                                                        coordinates: [longitude, prev.location?.coordinates[1] || 0],
+                                                    },
+                                                }));
+                                            }}
+                                            className="w-full p-2 border rounded-md"
+                                            placeholder="e.g., -122.4194"
+                                        />
+                                    </div>
+                                    <div className="flex justify-between items-center mt-4">
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            onClick={() => {
+                                                if (navigator.geolocation) {
+                                                    navigator.geolocation.getCurrentPosition(
+                                                        (position) => {
+                                                            const { latitude, longitude } = position.coords;
+                                                            setFormData((prev) => ({
+                                                                ...prev,
+                                                                location: {
+                                                                    type: 'Point',
+                                                                    coordinates: [longitude, latitude],
+                                                                },
+                                                            }));
+                                                            console.log('Location fetched:', { latitude, longitude });
+                                                        },
+                                                        (error) => {
+                                                            console.error('Error fetching location:', error);
+                                                            alert('Unable to fetch location. Please allow location access.');
+                                                        }
+                                                    );
+                                                } else {
+                                                    alert('Geolocation is not supported by your browser.');
+                                                }
+                                            }}
+                                        >
+                                            Use Current Location
+                                        </Button>
+                                    </div>
                                 </div>
                             )}
 

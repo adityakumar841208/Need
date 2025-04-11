@@ -200,6 +200,12 @@ export default function ServiceProviderProfile({ user, onProfileUpdate }: { user
                                                 Location not specified
                                             </span>
                                         )}
+                                        {user.location && (
+                                            <span className="flex items-center">
+                                                <FaMapMarkerAlt className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+                                                {`Lat: ${user.location.coordinates[1]}, Lng: ${user.location.coordinates[0]}`}
+                                            </span>
+                                        )}
                                         <span className="flex items-center">
                                             <MdWork className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
                                             {user.completedJobs ? `${user.completedJobs} Jobs` : 'No jobs yet'}
@@ -303,7 +309,7 @@ export default function ServiceProviderProfile({ user, onProfileUpdate }: { user
                 {/* Main Content */}
                 <div className="mt-6 sm:mt-8 grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
                     {/* Left Column */}
-                    <div className="md:col-span-2 space-y-4 sm:space-y-6">
+                    <div className="md:col-span-2 space-y-4 sm:space-y-6 mb-2">
                         {/* Services Section */}
                         <div className="rounded-lg border shadow-sm p-4 sm:p-6">
                             <h2 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">Services Offered</h2>
@@ -338,7 +344,10 @@ export default function ServiceProviderProfile({ user, onProfileUpdate }: { user
                                 ) : (
                                     <div className="text-center py-4">
                                         <p className="text-gray-500">No services listed yet.</p>
-                                        <Button className="mt-2">Add a Service</Button>
+                                        <Button className="mt-2" onClick={() => {
+                                            setActiveTab('services');
+                                            setIsEditing(true);
+                                        }}>Add a Service</Button>
                                     </div>
                                 )}
                             </div>
@@ -480,14 +489,9 @@ export default function ServiceProviderProfile({ user, onProfileUpdate }: { user
 
                         {/* Availability */}
                         <div className="rounded-lg shadow-sm p-4 sm:p-6 border relative">
-                            <button
-                                className="absolute top-3 sm:top-4 right-3 sm:right-4 p-1 sm:p-1.5 text-xs sm:text-sm text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors duration-200"
-                            >
-                                Discover More
-                            </button>
                             <h2 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">Availability</h2>
                             <div className="inline-flex items-center px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full bg-green-100 text-green-800 text-xs sm:text-sm">
-                                {user.availability || 'Not specified'}
+                                {user.available === true ? 'Available' : 'Not specified'}
                             </div>
                         </div>
                     </div>

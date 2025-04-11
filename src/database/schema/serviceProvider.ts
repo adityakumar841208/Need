@@ -60,9 +60,6 @@ const servicesSchema = new mongoose.Schema({
 
 // Service Provider Schema
 const serviceProviderSchema = new mongoose.Schema({
-  id: {
-    type: String,
-  },
   name: {
     type: String,
     max: 255,
@@ -86,7 +83,9 @@ const serviceProviderSchema = new mongoose.Schema({
   },
   mobile: {
     type: String,
-    default: '',
+    unique: true,
+    sparse: true,  // <-- this is the key!
+    trim: true,
   },
   address: {
     type: String,
@@ -145,12 +144,15 @@ const serviceProviderSchema = new mongoose.Schema({
     default: [],
   },
   location: {
-    latitude: {
-      type: Number,
+    type: {
+      type: String,
+      enum: ['Point'],
+      required: false, // Make true if location is mandatory
     },
-    longitude: {
-      type: Number,
-    },
+    coordinates: {
+      type: [Number],
+      required: false, // Make true if location is mandatory
+    }
   },
   isVerified: {
     type: Boolean,
@@ -165,6 +167,9 @@ const serviceProviderSchema = new mongoose.Schema({
     default: true,
   },
 });
+
+// Add 2dsphere index for efficient geospatial queries
+serviceProviderSchema.index({ location: "2dsphere" });
 
 // ServiceProvider Model
 const ServiceProvider =

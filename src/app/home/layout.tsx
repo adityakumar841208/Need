@@ -4,10 +4,11 @@ import '@/app/globals.css';
 import Sidebar from "@/components/sidebar";
 import { BiNotification, BiUser, BiMenu } from "react-icons/bi";
 import ModeToggle from "@/components/ui/mode-toggle";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Sidebar2 from "@/components/sidebar2";
 import { useRouter } from 'next/navigation';
-import { useAppSelector } from '@/store/hooks';
+import { useAppSelector, useAppDispatch } from '@/store/hooks';
+import { fetchUserProfile } from '@/store/profile/profileSlice';
 
 // Code: Layout component for dashboard
 
@@ -15,6 +16,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     const [showSidebar, setShowSidebar] = useState(false);
     const router = useRouter();
     const user = useAppSelector((state) => state.profile)
+    const dispatch = useAppDispatch();
+
+    useEffect(()=>{
+        dispatch(fetchUserProfile())
+    },[])
 
     return (
         <>

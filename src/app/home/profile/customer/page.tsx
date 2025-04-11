@@ -147,7 +147,7 @@ export default function CustomerProfile({ user, onProfileUpdate }: { user: any, 
                             }}
                         />
                     </button>
-                </div>  
+                </div>
             </>
 
             {/* Profile Header */}
@@ -202,6 +202,12 @@ export default function CustomerProfile({ user, onProfileUpdate }: { user: any, 
                                             <span className="flex items-center">
                                                 <FaMapMarkerAlt className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
                                                 Location not specified
+                                            </span>
+                                        )}
+                                        {user.location && (
+                                            <span className="flex items-center">
+                                                <FaMapMarkerAlt className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+                                                {`Lat: ${user.location.coordinates[1]}, Lng: ${user.location.coordinates[0]}`}
                                             </span>
                                         )}
                                         <span className="flex items-center">
