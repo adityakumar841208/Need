@@ -12,12 +12,14 @@ import {
 import { motion, AnimatePresence } from "framer-motion"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { useAppSelector } from "@/store/hooks"
 
 export default function PostUploadCard() {
   const [content, setContent] = useState("")
   const [selectedImage, setSelectedImage] = useState<string | null>(null)
   const [isUploading, setIsUploading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const user = useAppSelector((state)=> state.profile)
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -76,7 +78,7 @@ export default function PostUploadCard() {
           </Avatar>
           <div className="flex flex-col flex-1">
             <div className="flex items-center gap-1.5">
-              <span className="font-semibold text-sm">Your Name</span>
+              <span className="font-semibold text-sm">{user.name ? user.name : 'Your Name'}</span>
               <CheckCircle className="w-3.5 h-3.5 text-blue-500 fill-blue-200" />
             </div>
             <span className="text-xs text-muted-foreground">Now • Public</span>
