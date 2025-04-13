@@ -9,6 +9,7 @@ import Sidebar2 from "@/components/sidebar2";
 import { useRouter } from 'next/navigation';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import { fetchUserProfile } from '@/store/profile/profileSlice';
+import { Toaster } from '@/components/ui/toaster';
 
 // Code: Layout component for dashboard
 
@@ -85,6 +86,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                     onClick={() => setShowSidebar(false)}
                 />
             )}
+            <Toaster />
         </>
     );
 }

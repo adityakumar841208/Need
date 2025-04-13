@@ -1,12 +1,12 @@
 import mongoose from "mongoose";
 
 const postSchema = new mongoose.Schema({
-    id: {
-        type: String,
-        required: true,
-        unique: true
-    },
     user: {
+        _id: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User',
+            required: true,
+        },
         name: {
             type: String,
             required: true
@@ -20,21 +20,23 @@ const postSchema = new mongoose.Schema({
             required: true,
             default: false
         },
-        type: {
+        role: {
             type: String,
-            enum: ['client', 'provider'],
+            enum: ['serviceprovider', 'customer'],
             required: true
         }
     },
     content: {
         text: {
             type: String,
-            required: true
         },
         image: {
             type: String,
-            required: false
         }
+    },
+    tags:{
+        type: [String],
+        default: []
     },
     timestamp: {
         type: Date,
@@ -50,6 +52,10 @@ const postSchema = new mongoose.Schema({
             default: 0
         },
         shares: {
+            type: Number,
+            default: 0
+        },
+        saves:{
             type: Number,
             default: 0
         }

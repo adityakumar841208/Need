@@ -286,7 +286,7 @@ export default function Explore() {
             ))}
           </div>
         </div>
-      </div> : <div className="mb-8 space-y-6 bg-background/95 rounded-lg border p-4">
+      </div> : <div className="mb-8 space-y-6 -my-5 bg-background/95 rounded-lg border p-4">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">Explore Services</h1>
 
