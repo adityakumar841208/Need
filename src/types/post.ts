@@ -3,9 +3,12 @@ import { Types } from 'mongoose';
 interface Comment {
   user: {
     _id: Types.ObjectId;
+    name: string;
+    profilePicture: string;
+    verified: boolean;
   };
   reply: Types.ObjectId | null;
-  text: string;
+  content: string;
   timestamp: Date;
 }
 

@@ -6,9 +6,7 @@ fix the login - Login - At Last Of The Project - 4
               - for smaller give a post upload button
               - fix the search system
               - create some more users and posts
-              - fix the bookmark section
-              - fix engagement system( bookmark, like , share & comment)
-              - like working , fix comment save and share system...
+              - bookmark section, and socket io server study
 
 Things that should be completed before project presentation -
                     - search system should work with location and filters - 5 Days

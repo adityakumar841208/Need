@@ -5,14 +5,27 @@ const commentSchema = new mongoose.Schema({
         _id: {
             type: mongoose.Schema.Types.ObjectId,
             required: true
-        }
+        },
+        name: {
+            type: String,
+            required: true
+        },
+        verified: {
+            type: Boolean,
+            required: true,
+            default: false
+        },
+        profilePicture: {
+            type: String,
+            required: true
+        },
     },
     reply: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Comment', // ✅ Reference to another comment for threaded replies
         default: null
     },
-    text: {
+    content: {
         type: String,
         required: true
     },
@@ -20,7 +33,7 @@ const commentSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     }
-}, { _id: false }); // ✅ Optional: if embedded inside another doc like Post
+}); // ✅ Optional: if embedded inside another doc like Post
 
 
 const likeSchema = new mongoose.Schema({
@@ -34,7 +47,7 @@ const likeSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     }
-})
+}, { _id: false });
 
 const postSchema = new mongoose.Schema(
     {
