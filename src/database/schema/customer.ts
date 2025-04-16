@@ -19,6 +19,7 @@ export interface ICustomer extends mongoose.Document {
     type: 'Point';
     coordinates: [number, number]; // [longitude, latitude]
   };
+  bookmarks?: string[]; // Array of post IDs
 }
 
 const customerSchema = new mongoose.Schema<ICustomer>({
@@ -49,6 +50,7 @@ const customerSchema = new mongoose.Schema<ICustomer>({
       required: false, // Make true if location is mandatory
     }
   },
+  bookmarks: [{ type: mongoose.Schema.Types.ObjectId, ref: "Post" }], // Array of post IDs
 });
 
 // Add 2dsphere index for efficient geospatial queries

@@ -67,5 +67,6 @@ export const config = {
         '/settings/:path*',
         '/home',
         '/api/me',
+        '/api/fetchposts',
     ],
 };

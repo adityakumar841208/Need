@@ -175,7 +175,7 @@ export default function PostUploadCard() {
             </Avatar>
             <div className="flex flex-col flex-1">
               <div className="flex items-center gap-1.5">
-                <span className="font-semibold text-sm">{user.name ? user.name : 'Your Name'}</span>
+                <span className="font-semibold text-sm" suppressHydrationWarning={true}>{user.name ? user.name : 'Your Name'}</span>
                 <CheckCircle className="w-3.5 h-3.5 text-blue-500 fill-blue-200" />
               </div>
               <span className="text-xs text-muted-foreground">Now • Public</span>

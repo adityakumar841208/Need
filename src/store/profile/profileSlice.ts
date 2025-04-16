@@ -26,7 +26,7 @@ type History = {
 };
 
 interface UserProfile {
-    id: string | null;
+    _id: string | null;
     name: string | null;
     email: string | null;
     mobile: string | null;
@@ -124,7 +124,7 @@ export const updateUserProfile = createAsyncThunk(
 
 // Initial state
 const initialState: ProfileState = {
-    id: null,
+    _id: null,
     name: null,
     email: null,
     description: null,
