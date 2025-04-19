@@ -50,6 +50,7 @@ interface UserProfile {
     memberSince: string | null;
     responseTime: string | null;
     servicesRequested: number;
+    bookmarks: string[]; // Added bookmarks field
 }
 
 interface ProfileState extends UserProfile {
@@ -148,7 +149,7 @@ const initialState: ProfileState = {
     memberSince: null,
     responseTime: null,
     servicesRequested: 0,
-    
+    bookmarks: [],
     // Auth/loading state
     isLoading: false,
     isAuthenticated: false,
@@ -170,6 +171,11 @@ const profileSlice = createSlice({
                     (state as any)[typedKey] = action.payload[typedKey];
                 }
             });
+        },
+
+        //bookmark update
+        updateUserBookmarks(state, action: PayloadAction<string[]>){
+            state.bookmarks = action.payload
         },
         
         // Profile section updates
@@ -328,6 +334,7 @@ export const {
     addReview,
     // logout,
     clearErrors,
+    updateUserBookmarks,
     resetProfile
 } = profileSlice.actions;
 

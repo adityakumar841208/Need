@@ -1,23 +1,25 @@
 import { useState, useCallback, useRef } from 'react';
 import { Post, PostResponse } from '@/types/post';
 import { Types } from 'mongoose';
-import { useAppSelector } from '@/store/hooks';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { updateUserBookmarks } from '@/store/profile/profileSlice';
 
 export function usePosts() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(false);
   const user = useAppSelector((state) => state.profile);
   const fetchedPagesRef = useRef<Set<number>>(new Set());
+  const dispatch = useAppDispatch();
 
   const fetchPosts = useCallback(async (page: number = 1) => {
     // Prevent duplicate fetches for the same page
     if (fetchedPagesRef.current.has(page) || loading) return;
-    
+
     setLoading(true);
     try {
       const res = await fetch(`/api/fetchposts?page=${page}`);
       const data: PostResponse[] = await res.json();
-      
+
       // Convert string IDs back to ObjectIds for internal state
       const convertedPosts: Post[] = data.map(post => ({
         ...post,
@@ -42,11 +44,11 @@ export function usePosts() {
           }
         }
       }));
-      
-      setPosts(prev => 
+
+      setPosts(prev =>
         page === 1 ? convertedPosts : [...prev, ...convertedPosts]
       );
-      
+
       fetchedPagesRef.current.add(page);
     } catch (err) {
       console.error("Error fetching posts:", err);
@@ -57,15 +59,15 @@ export function usePosts() {
 
   const toggleLike = useCallback(async (postId: string) => {
     if (!user?._id) return;
-  
+
     // Find current post and check if already liked
     const currentPost = posts.find(p => p._id.toString() === postId);
     if (!currentPost) return;
-  
+
     const hasLiked = currentPost.engagement.likes.users.some(
       like => like.user._id.toString() === user._id
     );
-  
+
     try {
       // First update UI optimistically
       setPosts(currentPosts =>
@@ -79,15 +81,15 @@ export function usePosts() {
                   count: hasLiked ? post.engagement.likes.count - 1 : post.engagement.likes.count + 1,
                   users: hasLiked
                     ? post.engagement.likes.users.filter(
-                        like => like.user._id.toString() !== user._id
-                      )
+                      like => like.user._id.toString() !== user._id
+                    )
                     : [
-                        ...post.engagement.likes.users,
-                        {
-                          user: { _id: new Types.ObjectId(user._id?.toString()) },
-                          timestamp: new Date()
-                        }
-                      ]
+                      ...post.engagement.likes.users,
+                      {
+                        user: { _id: new Types.ObjectId(user._id?.toString()) },
+                        timestamp: new Date()
+                      }
+                    ]
                 }
               }
             };
@@ -95,7 +97,7 @@ export function usePosts() {
           return post;
         })
       );
-  
+
       // Then make API request with explicit action
       const response = await fetch(`/api/engagement/${postId}`, {
         method: 'PATCH',
@@ -109,19 +111,19 @@ export function usePosts() {
           userId: user._id
         })
       });
-  
+
       if (!response.ok) {
         throw new Error('Failed to update like');
       }
-  
+
       // Get updated data from server
       const updatedPost = await response.json();
       console.log(updatedPost)
-      
+
       // Update with server data to ensure consistency
       setPosts(currentPosts =>
         currentPosts.map(post =>
-          post._id.toString() === postId 
+          post._id.toString() === postId
             ? { ...post, engagement: updatedPost.engagement }
             : post
         )
@@ -131,18 +133,26 @@ export function usePosts() {
       // Revert to original state on error
       setPosts(currentPosts =>
         currentPosts.map(post =>
-          post._id.toString() === postId 
-            ? currentPost 
+          post._id.toString() === postId
+            ? currentPost
             : post
         )
       );
     }
   }, [user?._id, posts]);
-  
+
   const toggleBookmark = useCallback(async (postId: string) => {
     if (!user?._id) return;
-  
+
     try {
+      // Find current post and check if already bookmarked
+      const currentPost = posts.find(p => p._id.toString() === postId);
+      if (!currentPost) return;
+
+      const isCurrentlyBookmarked = user.bookmarks ? user.bookmarks.some(
+        id => id.toString() === postId
+      ) : false;
+
       // Optimistic update
       setPosts(currentPosts =>
         currentPosts.map(post => {
@@ -151,36 +161,66 @@ export function usePosts() {
               ...post,
               engagement: {
                 ...post.engagement,
-                saves: post.engagement.saves + (post.engagement.isBookmarked ? -1 : 1),
-                isBookmarked: !post.engagement.isBookmarked
+                saves: Math.max(
+                  0,
+                  post.engagement.saves + (isCurrentlyBookmarked ? -1 : 1)
+                ),
+                isBookmarked: !isCurrentlyBookmarked
               }
             };
           }
           return post;
         })
       );
-  
-      const response = await fetch(`/api/engagement/${postId}`, {
+
+      // Make API call to update user's bookmarks
+      const response = await fetch(`/api/engagement/bookmark`, {
         method: 'PATCH',
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${user._id}`
         },
         body: JSON.stringify({
-          type: 'save',
-          action: 'toggle'
+          userId: user._id,
+          postId,
+          role: user.role,
+          action: isCurrentlyBookmarked ? 'remove' : 'add'
         })
       });
-  
+
       if (!response.ok) {
         throw new Error('Failed to update bookmark');
       }
+
+      // Get the updated user data with bookmarks
+      const data = await response.json();
+
+      // Store updated bookmarks in Redux if needed
+      dispatch(updateUserBookmarks(data.bookmarks));
+
     } catch (error) {
       console.error('Error updating bookmark:', error);
       // Revert the optimistic update on error
-      await fetchPosts();
+      setPosts(currentPosts =>
+        currentPosts.map(post => {
+          if (post._id.toString() === postId) {
+            const isCurrentlyBookmarked = user.bookmarks ? user.bookmarks.some(
+              id => id.toString() === postId
+            ) : false;
+            return {
+              ...post,
+              engagement: {
+                ...post.engagement,
+                saves: post.engagement.saves + (isCurrentlyBookmarked ? 1 : -1),
+                isBookmarked: isCurrentlyBookmarked
+              }
+            };
+          }
+          return post;
+        })
+      );
     }
-  }, [user?._id, fetchPosts]);
+  }, [user, posts]);
 
   const updateEngagement = useCallback(async (
     postId: string,
@@ -192,7 +232,7 @@ export function usePosts() {
     try {
       const response = await fetch(`/api/engagement/${postId}`, {
         method: 'PATCH',
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${user}`
         },

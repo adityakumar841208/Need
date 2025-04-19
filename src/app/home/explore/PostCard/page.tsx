@@ -206,7 +206,10 @@ export function PostCard({
                   }`}
                 onClick={() => onLike(post._id.toString())}
               >
-                <Heart className="h-4 w-4" />
+                <Heart className={`w-4 h-4 ${post.engagement.likes.users.some(
+                  like => like.user._id.toString() === user?._id?.toString()
+                ) ? 'fill-current text-red-500' : ''
+                  }`} />
                 <span>{post.engagement.likes.count}</span>
               </Button>
 
@@ -237,7 +240,13 @@ export function PostCard({
               className="flex items-center space-x-2"
               onClick={() => onBookmark(post._id.toString())}
             >
-              <Bookmark className="h-4 w-4" />
+              <Bookmark
+                className={`w-4 h-4 ${user.bookmarks.some(id => id.toString() === post._id.toString())
+                  ? 'fill-current text-black dark:text-white'
+                  : ''
+                  }`}
+              />
+
               <span>{post.engagement.saves}</span>
             </Button>
           </div>
