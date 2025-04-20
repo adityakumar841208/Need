@@ -6,102 +6,60 @@ import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Bookmark as BookmarkIcon, MessageCircle, Heart, Share2, CheckCircle, X } from "lucide-react";
-
-interface User {
-  name: string;
-  image: string;
-  verified: boolean;
-  type: 'provider' | 'client';
-}
-
-interface Content {
-  text: string;
-  image?: string;
-  category: string;
-}
-
-interface Engagement {
-  likes: number;
-  comments: number;
-  shares: number;
-  isLiked?: boolean;
-  isBookmarked?: boolean;
-}
+import { Bookmark as BookmarkIcon, MessageCircle, Heart, Share2, CheckCircle } from "lucide-react";
+import { useAppSelector } from '@/store/hooks';
 
 interface Post {
-  id: string;
-  user: User;
-  content: Content;
+  _id: string;
+  user: {
+    _id: string;
+    name: string;
+    image: string;
+    verified: boolean;
+    role: string;
+  };
+  content: {
+    text: string;
+    image?: string;
+    category: string;
+  };
+  engagement: {
+    likes: {
+      count: number;
+      users: any[];
+    };
+    comments: {
+      count: number;
+      users: any[];
+    };
+    shares: number;
+    saves: number;
+  };
   timestamp: string;
-  engagement: Engagement;
+  tags?: string[];
+  views?: number;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export default function Bookmark() {
   const [bookmarkedPosts, setBookmarkedPosts] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const user = useAppSelector(state => state.profile);
 
   useEffect(() => {
     async function fetchBookmarkedPosts() {
       try {
-        // In a real app, you would fetch from API
-        // const response = await fetch('/api/bookmarks');
-        // const data = await response.json();
-        
-        // Using mock data
-        const mockPosts: Post[] = [
-          {
-            id: "post-1",
-            user: {
-              name: "John Doe",
-              image: "https://ui-avatars.com/api/?name=John+Doe&background=random",
-              verified: true,
-              type: "provider",
-            },
-            content: {
-              text: "Just finished an amazing kitchen renovation. Let me know if you need remodeling services!",
-              image: "https://images.unsplash.com/photo-1556912172-45b7abe8b7e1?q=80&w=800",
-              category: "home",
-            },
-            timestamp: "2h ago",
-            engagement: { likes: 24, comments: 5, shares: 2, isLiked: false, isBookmarked: true },
+        const response = await fetch('/api/engagement/bookmark', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
           },
-          {
-            id: "post-2",
-            user: {
-              name: "Emma Watson",
-              image: "https://ui-avatars.com/api/?name=Emma+Watson&background=random",
-              verified: false,
-              type: "client",
-            },
-            content: {
-              text: "Looking for an electrician near me. Any recommendations?",
-              category: "electrical",
-            },
-            timestamp: "5h ago",
-            engagement: { likes: 12, comments: 3, shares: 1, isLiked: true, isBookmarked: true },
-          },
-          {
-            id: "post-3",
-            user: {
-              name: "Michael Smith",
-              image: "https://ui-avatars.com/api/?name=Michael+Smith&background=random",
-              verified: true,
-              type: "provider",
-            },
-            content: {
-              text: "Need someone to fix your plumbing? Contact me for the best services in town!",
-              image: "https://images.unsplash.com/photo-1580341289255-5b47c98a59dd?q=80&w=800",
-              category: "plumbing",
-            },
-            timestamp: "3h ago",
-            engagement: { likes: 18, comments: 6, shares: 4, isBookmarked: true },
-          },
-        ];
-        
-        // Filter only bookmarked posts
-        const bookmarked = mockPosts.filter(post => post.engagement.isBookmarked);
-        setBookmarkedPosts(bookmarked);
+          body: JSON.stringify({ bookmarks: user.bookmarks })
+        });
+
+        const data = await response.json();
+        setBookmarkedPosts(data.posts || []);
         setIsLoading(false);
       } catch (error) {
         console.error('Error fetching bookmarked posts:', error);
@@ -110,11 +68,24 @@ export default function Bookmark() {
     }
 
     fetchBookmarkedPosts();
-  }, []);
+  }, [user.bookmarks]);
 
   const removeBookmark = (id: string) => {
-    setBookmarkedPosts(prev => prev.filter(post => post.id !== id));
-    // In a real app: fetch(`/api/bookmarks/${id}`, { method: 'DELETE' });
+    setIsLoading(true);
+    const updatedBookmarks = user.bookmarks.filter((bookmark: string) => bookmark !== id);
+    const res = fetch('/api/engagement/bookmark', {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ postId: id, userId: user._id, bookmarks: updatedBookmarks })
+
+    }).then(response => response.json())
+      .then(data => {
+        console.log('Bookmark removed:', data);
+        setBookmarkedPosts(prevPosts => prevPosts.filter(post => post._id !== id));
+        setIsLoading(false);
+      })
   };
 
   if (isLoading) {
@@ -128,7 +99,7 @@ export default function Bookmark() {
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
       <h1 className="text-3xl font-bold mb-6">Your Bookmarked Posts</h1>
-      
+
       {bookmarkedPosts.length === 0 ? (
         <Card className="p-8 text-center bg-muted/30">
           <div className="flex flex-col items-center gap-2">
@@ -142,7 +113,7 @@ export default function Bookmark() {
       ) : (
         <div className="grid gap-6 grid-cols-1 sm:grid-cols-2">
           {bookmarkedPosts.map(post => (
-            <Card key={post.id} className="overflow-hidden border-muted h-fit">
+            <Card key={post._id} className="overflow-hidden border-muted h-fit">
               <CardHeader className="p-4 pb-0 flex flex-row cursor-pointer items-center gap-2">
                 <Avatar className="h-10 w-10 border">
                   <AvatarImage src={post.user.image} alt={post.user.name} />
@@ -156,25 +127,25 @@ export default function Bookmark() {
                     )}
                   </div>
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Badge variant={post.user.type === 'provider' ? "default" : "outline"}>
-                      {post.user.type === 'provider' ? 'Provider' : 'Client'}
+                    <Badge variant={post.user.role === 'serviceprovider' ? "default" : "outline"}>
+                      {post.user.role === 'serviceprovider' ? 'Provider' : 'Client'}
                     </Badge>
                     <span>·</span>
-                    <span>{post.timestamp}</span>
+                    <span>{new Date(post.timestamp).toLocaleString()}</span>
                   </div>
                 </div>
                 <div className="ml-auto">
-                  <Button 
-                    variant="ghost" 
+                  <Button
+                    variant="ghost"
                     size="icon"
-                    onClick={() => removeBookmark(post.id)}
+                    onClick={() => removeBookmark(post._id)}
                     className="text-yellow-500 hover:text-yellow-600"
                   >
                     <BookmarkIcon className="h-5 w-5 fill-current" />
                   </Button>
                 </div>
               </CardHeader>
-              
+
               <CardContent className="p-4">
                 <div className="mb-3">
                   <Badge variant="outline" className="mb-2">
@@ -182,10 +153,10 @@ export default function Bookmark() {
                   </Badge>
                   <p className="text-base">{post.content.text}</p>
                 </div>
-                
+
                 {post.content.image && (
                   <div className="relative h-60 w-full rounded-md overflow-hidden mt-3">
-                    <Image 
+                    <Image
                       src={post.content.image}
                       alt="Post image"
                       fill
@@ -194,11 +165,27 @@ export default function Bookmark() {
                   </div>
                 )}
               </CardContent>
-              
-              <CardFooter className="p-2 border-t flex justify-between">
+
+              <CardFooter className="p-2 border-t flex flex-col gap-2">
                 <div className="flex gap-2 w-full">
                   <Button size="sm" variant="outline" className='w-1/2'>View Profile</Button>
                   <Button size="sm" className='w-1/2'>Message Now</Button>
+                </div>
+                <div className="flex items-center justify-between text-sm text-muted-foreground px-2">
+                  <div className="flex items-center gap-3">
+                    <span className="flex items-center gap-1">
+                      <Heart className="h-4 w-4" /> {post.engagement?.likes?.count ?? 0}
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <MessageCircle className="h-4 w-4" /> {post.engagement?.comments?.count ?? 0}
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <Share2 className="h-4 w-4" /> {post.engagement?.shares ?? 0}
+                    </span>
+                  </div>
+                  <span className="flex items-center gap-1">
+                    <BookmarkIcon className="h-4 w-4" /> {post.engagement?.saves ?? 0}
+                  </span>
                 </div>
               </CardFooter>
             </Card>
