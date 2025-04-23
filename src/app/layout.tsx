@@ -1,7 +1,8 @@
 'use client';
 import { ThemeProvider } from "@/components/theme-provider"
 import { Provider } from "react-redux";
-import {store} from "../store";
+import { store } from "../store";
+import { SocketProvider } from "@/contexts/SocketContext";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -15,9 +16,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             enableSystem
             disableTransitionOnChange
           >
-            <Provider store={store}>
-              {children}
-            </Provider>
+            <SocketProvider>
+              <Provider store={store}>
+                {children}
+              </Provider>
+            </SocketProvider>
           </ThemeProvider>
 
         </body>

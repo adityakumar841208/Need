@@ -96,6 +96,23 @@ export default function Bookmark() {
     );
   }
 
+  const createChat = async (userId: string) => {
+    try {
+      const response = await fetch('/api/chats', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userId })
+      });
+
+      const data = await response.json();
+      console.log('Chat created:', data);
+    } catch (error) {
+      console.error('Error creating chat:', error);
+    }
+  }
+
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
       <h1 className="text-3xl font-bold mb-6">Your Bookmarked Posts</h1>
@@ -169,7 +186,7 @@ export default function Bookmark() {
               <CardFooter className="p-2 border-t flex flex-col gap-2">
                 <div className="flex gap-2 w-full">
                   <Button size="sm" variant="outline" className='w-1/2'>View Profile</Button>
-                  <Button size="sm" className='w-1/2'>Message Now</Button>
+                  <Button size="sm" className='w-1/2' onClick={()=>createChat(post.user._id)}>Message Now</Button>
                 </div>
                 <div className="flex items-center justify-between text-sm text-muted-foreground px-2">
                   <div className="flex items-center gap-3">
