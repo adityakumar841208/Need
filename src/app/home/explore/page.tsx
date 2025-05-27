@@ -71,13 +71,20 @@ export default function Explore() {
 
   const handleSearch = useMemo(() => 
     debounce((query: string) => {
+      console.log("Search query:", query);
       const sanitizedQuery = DOMPurify.sanitize(query);
       setSearchQuery(sanitizedQuery);
+      //perform the search in the backend and retrieve the results
       setPage(1);
       fetchPosts(1);
     }, 500),
     [fetchPosts]
   );
+
+  //search will only occur when the user presses enter
+  const handleSearchChange = useCallback((query: string) => {
+    setSearchQuery(query);
+  },[]);
 
   const handleCategoryChange = useCallback((category: string) => {
     setActiveCategory(category);
@@ -119,17 +126,13 @@ export default function Explore() {
       <ExploreHeader
         isVisible={isVisible}
         searchQuery={searchQuery}
-        onSearchChange={(query) => handleSearch(query)}
+        onSearchChange={(query) => handleSearchChange(query)}
         onSearch={(e) => {
           e.preventDefault();
           handleSearch(searchQuery);
         }}
         trendingTopics={trendingTopics}
       />
-
-      <Tabs value={activeCategory} onValueChange={handleCategoryChange}>
-        {/* ...existing tabs code... */}
-      </Tabs>
 
       <div className="columns-1 gap-x-4">
         {posts.map((post, index) => (

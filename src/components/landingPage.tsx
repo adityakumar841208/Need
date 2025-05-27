@@ -54,9 +54,6 @@ export default function LandingPage() {
                             <Button className="p-6 text-xl">
                                 Get Started
                             </Button>
-                            <Button variant="outline" className="p-6 text-xl">
-                                Learn More
-                            </Button>
                         </div>
                     </motion.div>
                     <div className='hidden md:block'>
@@ -297,7 +294,7 @@ export default function LandingPage() {
             </div>
 
             {/* Trust & Safety Section */}
-            <div className="py-20 bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
+            {/* <div className="py-20 bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
                 <div className="container mx-auto px-4">
                     <div className="text-center mb-16">
                         <motion.span
@@ -363,7 +360,7 @@ export default function LandingPage() {
                         ))}
                     </div>
                 </div>
-            </div>
+            </div> */}
 
         </div>
     );
@@ -473,7 +470,7 @@ const faqs = [
     },
     {
         question: "Is Need safe to use?",
-        answer: "Yes, Need prioritizes your safety. All service providers undergo verification, and our platform includes secure payment processing and privacy protection measures."
+        answer: "Yes, Need prioritizes your safety. All service providers undergo verification, and privacy protection measures."
     },
     {
         question: "How do I get started?",

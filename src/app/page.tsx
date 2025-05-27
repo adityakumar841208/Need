@@ -11,7 +11,7 @@ export default function Home() {
     <>
       <Navbar />
       <div className="min-h-screen">
-        <LandingPage />
+        <LandingPage />   
       </div>
 
       <Footer />

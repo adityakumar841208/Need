@@ -188,8 +188,8 @@ export default function Bookmark() {
                   <Button size="sm" variant="outline" className='w-1/2'>View Profile</Button>
                   <Button size="sm" className='w-1/2' onClick={()=>createChat(post.user._id)}>Message Now</Button>
                 </div>
-                <div className="flex items-center justify-between text-sm text-muted-foreground px-2">
-                  <div className="flex items-center gap-3">
+                <div className="flex items-center justify-evenly text-sm text-muted-foreground px-2">
+                  <div className="flex items-center justify-around gap-3">
                     <span className="flex items-center gap-1">
                       <Heart className="h-4 w-4" /> {post.engagement?.likes?.count ?? 0}
                     </span>

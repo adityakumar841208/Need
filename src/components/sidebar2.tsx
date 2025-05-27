@@ -21,7 +21,7 @@ export default function Sidebar2() {
         <div className={`w-64 border-r transition-all duration-300 sticky h-full z-50 top-0 left-0 flex flex-col`}>
             {/* Logo and Toggle */}
             <div className="p-4 border-b flex items-center justify-between w-full">
-                <h1 className={`font-bold text-xl text-blue-600 transition-all ${!isSidebarOpen && 'hidden'}`}>NEED</h1>
+                <h1 className={`font-bold text-xl text-blue-600 transition-all ${!isSidebarOpen && 'hidden'}`}>NEEDIFY</h1>
                 <button className="p-2 rounded-lg hover:bg-gray-100">
                     <X size={22} />
                 </button>

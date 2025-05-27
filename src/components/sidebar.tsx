@@ -21,7 +21,7 @@ export default function Sidebar() {
         <div className={`${isSidebarOpen ? 'w-64' : 'w-20'} border-r transition-all duration-300 sticky h-[100vh] dark:bg-black z-50 top-0 left-0 flex flex-col`}>
             {/* Logo and Toggle */}
             <div className="p-4 border-b flex items-center justify-between w-full">
-                <h1 className={`font-bold text-xl text-blue-600 transition-all ${!isSidebarOpen && 'hidden'}`}>NEED</h1>
+                <h1 className={`font-bold text-xl text-blue-600 transition-all ${!isSidebarOpen && 'hidden'}`}>NEEDIFY</h1>
                 {isSidebarOpen ?
                     <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2 rounded-lg hover:bg-gray-100 dark:hover:text-black">
                         <X size={22} />

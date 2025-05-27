@@ -29,10 +29,10 @@ export default function About() {
                                 Connecting People with Services
                             </h1>
                             <p className="text-lg md:text-xl text-slate-600 dark:text-slate-400 mb-8">
-                                At Need, we believe in the power of connections. Our platform bridges the gap between skilled professionals and those seeking their expertise. We're not just a service marketplace; we're a community built on trust, reliability, and excellence.
+                                At Needify, we believe in the power of connections. Our platform bridges the gap between skilled professionals and those seeking their expertise. We're not just a service marketplace; we're a community built on trust, reliability, and excellence.
                             </p>
                             <div className="flex gap-4">
-                                <motion.button
+                                {/* <motion.button
                                     whileHover={{ scale: 1.05 }}
                                     className="px-6 py-3 rounded-lg bg-blue-500 text-white font-semibold hover:bg-blue-600 transition-colors"
                                 >
@@ -43,7 +43,7 @@ export default function About() {
                                     className="px-6 py-3 rounded-lg bg-purple-500 text-white font-semibold hover:bg-purple-600 transition-colors"
                                 >
                                     Find Services
-                                </motion.button>
+                                </motion.button> */}
                             </div>
                         </motion.div>
 
@@ -60,7 +60,7 @@ export default function About() {
                                     <div className="h-full bg-gradient-to-br from-blue-500/20 to-purple-500/20 backdrop-blur-sm">
                                         <img
                                             src="/about-us.gif"
-                                            alt="Need Platform"
+                                            alt="Needify Platform"
                                             className="w-full h-full object-cover"
                                         />
                                     </div>
@@ -156,8 +156,8 @@ export default function About() {
                 </div>
             </div> */}
 
-            {/* Team Section (New) */}
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 py-16">
+            {/* Team Section */}
+            {/* <div className="max-w-7xl mx-auto px-4 sm:px-6 py-16">
                 <div className="text-center mb-12">
                     <h2 className="text-3xl md:text-4xl font-bold mb-4">Meet Our Team</h2>
                     <p className="text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
@@ -179,7 +179,7 @@ export default function About() {
                         </motion.div>
                     ))}
                 </div>
-            </div>
+            </div> */}
         </div>
     );
 }

@@ -33,7 +33,7 @@ export default function Navbar() {
         >
             <div className="flex justify-between items-center max-w-7xl mx-auto px-6 py-4">
                 <div className="text-3xl font-bold tracking-tight bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                    Need
+                    Needify
                 </div>
 
                 <div className="items-center space-x-6 hidden md:flex">
