@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation";
 import Skeleton from "./skeleton/page";
 import { Post } from "@/types/post"; // Create this type file
 import { usePosts } from "@/hooks/usePosts";
+import SearchComponent from "./SearchComp/page";
 
 export default function Explore() {
   const router = useRouter();
@@ -26,6 +27,7 @@ export default function Explore() {
   const [activeCategory, setActiveCategory] = useState("all");
   const [page, setPage] = useState(1);
   const [isVisible, setIsVisible] = useState(false);
+  const [fetchQuery, setFetchQuery] = useState(false);
 
   const lastPostRef = useRef<HTMLDivElement | null>(null);
   const prevScrollY = useRef(0);
@@ -69,11 +71,12 @@ export default function Explore() {
     };
   }, [handleScroll]);
 
-  const handleSearch = useMemo(() => 
+  const handleSearch = useMemo(() =>
     debounce((query: string) => {
       console.log("Search query:", query);
       const sanitizedQuery = DOMPurify.sanitize(query);
       setSearchQuery(sanitizedQuery);
+      setFetchQuery(true);
       //perform the search in the backend and retrieve the results
       setPage(1);
       fetchPosts(1);
@@ -121,6 +124,11 @@ export default function Explore() {
     };
   }, [observerCallback, loading]);
 
+  const handleBackClick = () => {
+    setFetchQuery(false);
+    setSearchQuery("");
+  }
+
   return (
     <div className="sm:w-3/5 w-full mx-auto py-6 px-4 md:py-8 md:px-6">
       <ExploreHeader
@@ -134,21 +142,27 @@ export default function Explore() {
         trendingTopics={trendingTopics}
       />
 
-      <div className="columns-1 gap-x-4">
-        {posts.map((post, index) => (
-          <PostCard
-            key={post._id.toString() + index}
-            post={post}
-            index={index}
-            isLast={index === posts.length - 1}
-            lastPostRef={lastPostRef as React.RefObject<HTMLDivElement>}
-            onLike={toggleLike}
-            onShare={(postId) => updateEngagement(postId, 'share', 'add')}
-            onBookmark={toggleBookmark}
-            onProfileClick={(userId) => router.push(`/home/showprofile/${userId}`)}
-          />
-        ))}
-      </div>
+      {fetchQuery === true ?
+        <div>
+          <SearchComponent query={searchQuery} onBack={handleBackClick} />
+            {/* Search Query will be injected Here */}
+        </div>
+        :
+        <div className="columns-1 gap-x-4">
+          {posts.map((post, index) => (
+            <PostCard
+              key={post._id.toString() + index}
+              post={post}
+              index={index}
+              isLast={index === posts.length - 1}
+              lastPostRef={lastPostRef as React.RefObject<HTMLDivElement>}
+              onLike={toggleLike}
+              onShare={(postId) => updateEngagement(postId, 'share', 'add')}
+              onBookmark={toggleBookmark}
+              onProfileClick={(userId) => router.push(`/home/showprofile/${userId}`)}
+            />
+          ))}
+        </div>}
 
       {loading && <Skeleton />}
     </div>
