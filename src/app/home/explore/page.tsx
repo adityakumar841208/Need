@@ -7,10 +7,19 @@ import { ExploreHeader } from "./ExploreHeader/page";
 import { PostCard } from "./PostCard/page";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useRouter } from "next/navigation";
-import Skeleton from "./skeleton/page";
-import { Post } from "@/types/post"; // Create this type file
+import { Post } from "@/types/post";
 import { usePosts } from "@/hooks/usePosts";
-import SearchComponent from "./SearchComp/page";
+import dynamic from 'next/dynamic';
+
+const Skeleton = dynamic(() => import("./skeleton/page"), {
+  loading: () => <div>Loading Skeleton...</div>,
+  ssr: false,
+});
+
+const SearchComponent = dynamic(() => import("./SearchComp/page"), {
+  loading: () => <div>Searching...</div>,
+  ssr: false,
+});
 
 export default function Explore() {
   const router = useRouter();
@@ -28,6 +37,8 @@ export default function Explore() {
   const [page, setPage] = useState(1);
   const [isVisible, setIsVisible] = useState(false);
   const [fetchQuery, setFetchQuery] = useState(false);
+  const [searchResults, setSearchResults] = useState<Post[]>([]);
+  const [searchLoading, setSearchLoading] = useState(false);
 
   const lastPostRef = useRef<HTMLDivElement | null>(null);
   const prevScrollY = useRef(0);
@@ -46,7 +57,7 @@ export default function Explore() {
     () =>
       debounce(() => {
         const currentScrollY = window.scrollY;
-        setIsVisible(prev => 
+        setIsVisible(prev =>
           currentScrollY < prevScrollY.current && currentScrollY > 200
         );
         prevScrollY.current = currentScrollY;
@@ -71,23 +82,43 @@ export default function Explore() {
     };
   }, [handleScroll]);
 
+  // New function to fetch search results
+  const fetchSearchResults = async (query: string) => {
+    if (!query.trim()) return;
+
+    try {
+      setSearchLoading(true);
+      const response = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
+
+      if (!response.ok) {
+        throw new Error('Search request failed');
+      }
+
+      const data = await response.json();
+      console.log(data);
+      setSearchResults(data.posts || []);
+    } catch (error) {
+      console.error('Error fetching search results:', error);
+      setSearchResults([]);
+    } finally {
+      setSearchLoading(false);
+    }
+  };
+
   const handleSearch = useMemo(() =>
     debounce((query: string) => {
       console.log("Search query:", query);
       const sanitizedQuery = DOMPurify.sanitize(query);
       setSearchQuery(sanitizedQuery);
       setFetchQuery(true);
-      //perform the search in the backend and retrieve the results
-      setPage(1);
-      fetchPosts(1);
+      fetchSearchResults(sanitizedQuery);
     }, 500),
-    [fetchPosts]
+    [/* no dependencies needed for fetchSearchResults */]
   );
 
-  //search will only occur when the user presses enter
   const handleSearchChange = useCallback((query: string) => {
     setSearchQuery(query);
-  },[]);
+  }, []);
 
   const handleCategoryChange = useCallback((category: string) => {
     setActiveCategory(category);
@@ -127,6 +158,7 @@ export default function Explore() {
   const handleBackClick = () => {
     setFetchQuery(false);
     setSearchQuery("");
+    setSearchResults([]);
   }
 
   return (
@@ -134,6 +166,7 @@ export default function Explore() {
       <ExploreHeader
         isVisible={isVisible}
         searchQuery={searchQuery}
+        hasSearched={fetchQuery}
         onSearchChange={(query) => handleSearchChange(query)}
         onSearch={(e) => {
           e.preventDefault();
@@ -144,8 +177,12 @@ export default function Explore() {
 
       {fetchQuery === true ?
         <div>
-          <SearchComponent query={searchQuery} onBack={handleBackClick} />
-            {/* Search Query will be injected Here */}
+          <SearchComponent
+            query={searchQuery}
+            onBack={handleBackClick}
+            results={searchResults}
+            isLoading={searchLoading}
+          />
         </div>
         :
         <div className="columns-1 gap-x-4">

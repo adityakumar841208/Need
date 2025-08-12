@@ -1,18 +1,15 @@
-current changes - integrate the backend with the frontend of the search query
+priority - fix the nearby search
+        - implement the post view and profile view system
+        - fix the dashboard, setting and the auth system
 
 fix the login - Login - At Last Of The Project - 4
               - inspect for vulnerablitliy in auth - 3 -- 5 Days
               - notification system - 3 Days
-              - chat system - 2 Days
-              - search system - 1 Day
               - component to show my post or anyone else post
               - for smaller screen give a post upload button
-              - fix the search system
+              - fix the nearby search
               - create some more users and posts
               - change need into needify
               - add loading skeleton
 
-
-Things that should be completed before project presentation -
-                    - search system should work with location and filter
 

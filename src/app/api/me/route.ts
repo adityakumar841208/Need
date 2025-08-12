@@ -3,6 +3,7 @@ import { verifyAccessToken } from '@/utils/auth';
 import dbConnect from '@/database/dbConnect/connection';
 import Customer from '@/database/schema/customer';
 import ServiceProvider from '@/database/schema/serviceProvider';
+import { getJson, setJson } from '@/lib/redis';
 
 interface jwtPayload {
     userId: string;
@@ -12,10 +13,7 @@ interface jwtPayload {
 
 export async function GET(request: NextRequest) {
     try {
-        // Connect to database
         await dbConnect();
-
-        // Get the access token from cookies
         const accessToken = request.cookies.get('accessToken')?.value;
 
         if (!accessToken) {
@@ -25,23 +23,30 @@ export async function GET(request: NextRequest) {
             );
         }
 
-        // Verify the token and extract user ID
         try {
             const decoded = verifyAccessToken(accessToken) as jwtPayload;
-            // console.log(decoded, 'decoded token');
             const userId: any = decoded.userId;
 
-            // Try to find user in both collections
-            let user = await Customer.findById(userId).select('-password -refreshToken');
-            let userType = 'customer';
+            // Try cache first (20s TTL policy)
+            const cacheKey = `user:${userId}`;
+            try {
+                const cached = await getJson<{ user: any; userType: 'customer' | 'serviceprovider' }>(cacheKey);
+                if (cached) {
+                    return NextResponse.json(cached, { status: 200 });
+                }
+            } catch (e) {
+                console.error('Redis read error:', e);
+            }
 
-            // If not found in Customer collection, try ServiceProvider
+            // Fallback to DB
+            let user = await Customer.findById(userId).select('-password -refreshToken');
+            let userType: 'customer' | 'serviceprovider' = 'customer';
+
             if (!user) {
                 user = await ServiceProvider.findById(userId).select('-password -refreshToken');
                 userType = 'serviceprovider';
             }
 
-            // If user not found in either collection
             if (!user) {
                 return NextResponse.json(
                     { message: 'User not found' },
@@ -49,11 +54,16 @@ export async function GET(request: NextRequest) {
                 );
             }
 
-            // Return user data
-            return NextResponse.json({
-                user,
-                userType
-            }, { status: 200 });
+            const payload = { user, userType };
+
+            // Store in cache for 20 seconds
+            try {
+                await setJson(cacheKey, payload, 20);
+            } catch (e) {
+                console.error('Redis write error:', e);
+            }
+
+            return NextResponse.json(payload, { status: 200 });
 
         } catch (tokenError) {
             console.error('Token verification error:', tokenError);

@@ -1,12 +1,14 @@
-import { Search, Zap } from "lucide-react";
+import { Search, Zap, Filter } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import FilterOption from "../FilterOption/page"
 
 interface ExploreHeaderProps {
   isVisible: boolean;
   searchQuery: string;
   onSearchChange: (query: string) => void;
   onSearch: (e: React.FormEvent) => void;
+  hasSearched?: boolean;
   trendingTopics: string[];
 }
 
@@ -15,8 +17,14 @@ export function ExploreHeader({
   searchQuery,
   onSearchChange,
   onSearch,
+  hasSearched,
   trendingTopics
 }: ExploreHeaderProps) {
+
+  const changeFilter = (filters: any) => {
+    // Handle filter changes here
+    console.log("Filters changed:", filters);
+  };
   return (
     <div className={`mb-8 space-y-6 ${isVisible ? 'sticky -my-5 border top-16 z-30' : '-my-5'} bg-background/95 rounded-lg p-4`}>
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -35,21 +43,35 @@ export function ExploreHeader({
         </form>
       </div>
 
-      <div className="hidden md:block">
-        <p className="text-sm font-medium mb-2 text-muted-foreground">Trending:</p>
-        <div className="flex flex-wrap gap-2">
-          {trendingTopics.map((topic, i) => (
-            <Badge
-              key={i}
-              variant="outline"
-              className="cursor-pointer hover:bg-muted px-3 py-1 text-xs"
-              onClick={() => onSearchChange(topic)}
-            >
-              <Zap className="w-3 h-3 mr-1 text-blue-500" />
-              {topic}
-            </Badge>
-          ))}
-        </div>
+      <div className="transition-all duration-300 ease-in-out min-h-[60px] md:block">
+        {!hasSearched ? (
+          <>
+            <p className="text-sm font-medium mb-2 text-muted-foreground">Trending:</p>
+            <div className="flex flex-wrap gap-2">
+              {trendingTopics.map((topic, i) => (
+                <Badge
+                  key={i}
+                  variant="outline"
+                  className="cursor-pointer hover:bg-muted px-3 py-1 text-xs"
+                  onClick={() => onSearchChange(topic)}
+                >
+                  <Zap className="w-3 h-3 mr-1 text-blue-500" />
+                  {topic}
+                </Badge>
+              ))}
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="flex items-center mb-2">
+              <Filter className="w-4 h-4 mr-1 text-muted-foreground" />
+              <p className="text-sm font-medium text-muted-foreground">Filters:</p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <FilterOption onFiltersChange={changeFilter} />
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

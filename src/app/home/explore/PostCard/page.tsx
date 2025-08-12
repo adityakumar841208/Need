@@ -1,3 +1,4 @@
+"use client";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -9,6 +10,7 @@ import { useAppSelector } from "@/store/hooks";
 import { useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
+import Image from "next/image";
 
 interface PostCardProps {
   post: Post;
@@ -41,11 +43,13 @@ export function PostCard({
       : []
   );
 
+
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const toggleComments = () => {
     setShowComments(!showComments);
   };
+
 
   const handleCommentSubmit = async () => {
     if (!commentText.trim() || isSubmitting) return;
@@ -163,17 +167,14 @@ export function PostCard({
 
           {post.content.image && (
             <div className="relative w-full rounded-lg overflow-hidden mb-4">
-              <div className="relative min-h-[200px] max-h-[400px] md:max-h-[500px] lg:max-h-[600px]">
-                <img
+              <div className="relative w-full pt-[56.25%]"> {/* 56.25% creates a 16:9 aspect ratio */}
+                <Image
                   src={post.content.image}
-                  alt="Post content"
-                  className="w-full h-full object-contain hover:scale-105 transition-transform duration-300"
-                  style={{
-                    maxHeight: '100%',
-                    width: 'auto',
-                    margin: '0 auto'
-                  }}
-                  loading="lazy"
+                  alt={`${post.user.name}'s post`}
+                  fill
+                  className="absolute inset-0 object-contain hover:scale-105 transition-transform duration-300"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  priority={index < 2}
                 />
               </div>
             </div>
