@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from "react";
-import { ChevronDown, Filter, X, SlidersHorizontal } from "lucide-react";
+import { X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,15 +14,17 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 export default function FilterOption({
   onFiltersChange,
   initialFilters = {},
-  categories = ["Design", "Development", "Marketing", "Writing", "Admin"],
+  categories = ["Design", "Development ", "Marketing", "Writing", "Admin"],
   locations = ["Remote", "Local", "Hybrid"],
   maxPrice = 1000
 }) {
   const [filters, setFilters] = useState({
     categories: initialFilters.categories || [],
     location: initialFilters.location || "",
+    maxPrice: typeof initialFilters.maxPrice === 'number' ? initialFilters.maxPrice : null,
     priceRange: initialFilters.priceRange || [0, maxPrice],
-    rating: initialFilters.rating || "",
+    // keep a simple `type` field: all | provider | post | customer
+    type: initialFilters.type || 'all',
     ...initialFilters
   });
 
@@ -36,7 +38,7 @@ export default function FilterOption({
     const newCategories = filters.categories.includes(category)
       ? filters.categories.filter(c => c !== category)
       : [...filters.categories, category];
-    
+
     updateFilters({ ...filters, categories: newCategories });
   };
 
@@ -45,7 +47,9 @@ export default function FilterOption({
       categories: [],
       location: "",
       priceRange: [0, maxPrice],
-      rating: "",
+      maxPrice: null,
+      // reset type to all
+      type: 'all',
     };
     updateFilters(clearedFilters);
   };
@@ -66,6 +70,18 @@ export default function FilterOption({
           </Badge>
         ))}
 
+        {/* Type selector badges */}
+        {['all', 'provider', 'post', 'customer'].map(t => (
+          <Badge
+            key={t}
+            variant={filters.type === t ? "default" : "outline"}
+            className="cursor-pointer hover:bg-muted px-3 py-1 text-xs"
+            onClick={() => updateFilters({ ...filters, type: t })}
+          >
+            {t === 'all' ? 'All' : t.charAt(0).toUpperCase() + t.slice(1)}
+          </Badge>
+        ))}
+
         {/* Location filter */}
         <Popover>
           <PopoverTrigger asChild>
@@ -73,7 +89,7 @@ export default function FilterOption({
               variant={filters.location ? "default" : "outline"}
               className="cursor-pointer hover:bg-muted px-3 py-1 text-xs"
             >
-              {filters.location || "Location"} {filters.location && <X className="w-3 h-3 ml-1" onClick={(e) => { e.stopPropagation(); updateFilters({...filters, location: ""}) }} />}
+              {filters.location || "Location"} {filters.location && <X className="w-3 h-3 ml-1" onClick={(e) => { e.stopPropagation(); updateFilters({ ...filters, location: "" }) }} />}
             </Badge>
           </PopoverTrigger>
           <PopoverContent className="w-60 p-3">
@@ -96,11 +112,11 @@ export default function FilterOption({
           </PopoverContent>
         </Popover>
 
-        {/* Price Range filter */}
+        {/* Max price filter (simple) */}
         <Popover>
           <PopoverTrigger asChild>
             <Badge
-              variant={filters.priceRange[0] > 0 || filters.priceRange[1] < maxPrice ? "default" : "outline"}
+              variant={typeof filters.maxPrice === 'number' ? "default" : "outline"}
               className="cursor-pointer hover:bg-muted px-3 py-1 text-xs"
             >
               Price
@@ -108,67 +124,24 @@ export default function FilterOption({
           </PopoverTrigger>
           <PopoverContent className="w-60 p-3">
             <div className="space-y-2">
-              <label className="text-xs font-medium">Price range:</label>
-              <div className="flex justify-between">
-                <span className="text-xs">${filters.priceRange[0]}</span>
-                <span className="text-xs">${filters.priceRange[1]}</span>
+              <label className="text-xs font-medium">Max price</label>
+              <div className="flex gap-2 items-center">
+                <input
+                  type="number"
+                  placeholder="any"
+                  value={filters.maxPrice ?? ''}
+                  onChange={(e) => updateFilters({ ...filters, maxPrice: e.target.value === '' ? null : Number(e.target.value) })}
+                  className="w-full border rounded px-2 py-1"
+                />
               </div>
             </div>
           </PopoverContent>
         </Popover>
 
-        {/* Rating filter */}
-        <Popover>
-          <PopoverTrigger asChild>
-            <Badge
-              variant={filters.rating ? "default" : "outline"}
-              className="cursor-pointer hover:bg-muted px-3 py-1 text-xs"
-            >
-              {filters.rating || "Rating"}
-            </Badge>
-          </PopoverTrigger>
-          <PopoverContent className="w-60 p-3">
-            <div className="space-y-2">
-              <label className="text-xs font-medium">Minimum rating:</label>
-              <div className="flex flex-col gap-2">
-                {['4+ stars', '3+ stars', '2+ stars', '1+ stars'].map((rating) => (
-                  <Button
-                    key={rating}
-                    variant={filters.rating === rating ? "default" : "outline"}
-                    size="sm"
-                    className="w-full justify-start"
-                    onClick={() => updateFilters({ ...filters, rating: filters.rating === rating ? "" : rating })}
-                  >
-                    {rating}
-                  </Button>
-                ))}
-              </div>
-            </div>
-          </PopoverContent>
-        </Popover>
-
-        {/* More filters */}
-        <Popover>
-          <PopoverTrigger asChild>
-            <Badge
-              variant="outline"
-              className="cursor-pointer hover:bg-muted px-3 py-1 text-xs"
-            >
-              <SlidersHorizontal className="w-3 h-3 mr-1" />
-              More
-            </Badge>
-          </PopoverTrigger>
-          <PopoverContent className="w-60 p-3">
-            <div className="space-y-4">
-              <h4 className="font-medium text-sm">Additional Filters</h4>
-              {/* Add more filter options here */}
-            </div>
-          </PopoverContent>
-        </Popover>
+        {/* (Removed rating and more to keep filters focused) */}
 
         {/* Clear all button */}
-        {(filters.categories.length > 0 || filters.location || filters.rating || 
-         (filters.priceRange[0] > 0 || filters.priceRange[1] < maxPrice)) && (
+        {(filters.categories.length > 0 || filters.location || typeof filters.maxPrice === 'number' || filters.type !== 'all') && (
           <Button
             variant="ghost"
             size="sm"

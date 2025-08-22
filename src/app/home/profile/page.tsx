@@ -2,10 +2,11 @@
 import { useEffect, useState, useCallback } from 'react';
 import CustomerProfile from './customer/page';
 import ServiceProviderProfile from './serviceprovider/page';
+import { useAppSelector, useAppDispatch } from '@/store/hooks';
 
 // Default dummy user with both customer and service provider fields
 const dummyUser = {
-    id: '1',
+    _id: '1',
     name: 'John Doe',
     email: 'john@example.com',
     role: 'service_provider', // Change to 'customer' to test customer profile
@@ -98,14 +99,25 @@ const dummyUser = {
 
 export default function ProfilePage() {
     const [user, setUser] = useState(dummyUser);
+    const reduxUser = useAppSelector(state => state?.profile);
     const [loading, setLoading] = useState(true);
     const [refreshTrigger, setRefreshTrigger] = useState(0);
+    const dispatch = useAppDispatch();
+
+    // Save user Data into redux
+    const saveUserToRedux = (userData: any) => {
+        dispatch({ type: 'profile/setProfile', payload: userData });
+    };
 
     // Create a function to fetch user data that can be called whenever needed
     const fetchUserData = useCallback(() => {
         setLoading(true);
-
-        fetch('/api/me')
+        // check if user data exist in redux
+        if(reduxUser && reduxUser?._id) {
+            setUser(reduxUser);
+            setLoading(false);
+        }else{
+            fetch('/api/me')
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Failed to fetch user data');
@@ -114,16 +126,19 @@ export default function ProfilePage() {
             })
             .then(data => {
                 console.log('User data:', data);
+                // add into redux
                 if (data.user) {
                     setUser(data.user);
                 }
                 setLoading(false);
+                saveUserToRedux(data.user);
             })
             .catch(error => {
                 console.error('Error fetching user data:', error);
                 setLoading(false);
                 // Keep the dummy user as fallback
             });
+        }
     }, []);
 
     // Function to trigger a refresh that can be passed to child components

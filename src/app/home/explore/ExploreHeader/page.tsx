@@ -8,6 +8,7 @@ interface ExploreHeaderProps {
   searchQuery: string;
   onSearchChange: (query: string) => void;
   onSearch: (e: React.FormEvent) => void;
+  onFiltersChange?: (filters: Record<string, unknown>) => void;
   hasSearched?: boolean;
   trendingTopics: string[];
 }
@@ -17,13 +18,14 @@ export function ExploreHeader({
   searchQuery,
   onSearchChange,
   onSearch,
+  onFiltersChange,
   hasSearched,
   trendingTopics
 }: ExploreHeaderProps) {
 
-  const changeFilter = (filters: any) => {
-    // Handle filter changes here
-    console.log("Filters changed:", filters);
+  const changeFilter = (filters: Record<string, unknown>) => {
+    // Forward to parent if provided
+    onFiltersChange?.(filters);
   };
   return (
     <div className={`mb-8 space-y-6 ${isVisible ? 'sticky -my-5 border top-16 z-30' : '-my-5'} bg-background/95 rounded-lg p-4`}>
