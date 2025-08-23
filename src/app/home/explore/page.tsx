@@ -200,6 +200,13 @@ export default function Explore() {
       />
 
       {/* Page-level FilterOption (keeps filters centralized) */}
+      <div className="mt-4">
+        <FilterOption onFiltersChange={(f: Record<string, unknown>) => {
+          setFilters((prev) => ({ ...(prev || {}), ...(f || {}) }));
+          // re-run search with merged filters if there is an active query
+          if (fetchQuery && searchQuery) fetchSearchResults(searchQuery, f as Record<string, unknown>);
+        }} initialFilters={filters} />
+      </div>
 
       {fetchQuery === true ?
         <div>
