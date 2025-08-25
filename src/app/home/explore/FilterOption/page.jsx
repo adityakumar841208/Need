@@ -59,16 +59,6 @@ export default function FilterOption({
     <div className="w-full">
       <div className="flex flex-wrap gap-2 items-center">
         {/* Category filters as badges */}
-        {categories.map((category) => (
-          <Badge
-            key={category}
-            variant={filters.categories.includes(category) ? "default" : "outline"}
-            className="cursor-pointer hover:bg-muted px-3 py-1 text-xs"
-            onClick={() => handleCategoryChange(category)}
-          >
-            {category}
-          </Badge>
-        ))}
 
         {/* Type selector badges */}
         {['all', 'provider', 'post', 'customer'].map(t => (
