@@ -27,6 +27,10 @@ export async function GET(request: NextRequest) {
             const decoded = verifyAccessToken(accessToken) as jwtPayload;
             const userId: any = decoded.userId;
 
+            let user = null;
+            let userType: 'customer' | 'serviceprovider' = 'customer';
+            let useCache = true;
+
             // Try cache first (20s TTL policy)
             const cacheKey = `user:${userId}`;
             try {
@@ -35,12 +39,12 @@ export async function GET(request: NextRequest) {
                     return NextResponse.json(cached, { status: 200 });
                 }
             } catch (e) {
-                console.error('Redis read error:', e);
+                console.error('Redis read error, falling back to DB:', e);
+                useCache = false;
             }
 
             // Fallback to DB
-            let user = await Customer.findById(userId).select('-password -refreshToken');
-            let userType: 'customer' | 'serviceprovider' = 'customer';
+            user = await Customer.findById(userId).select('-password -refreshToken');
 
             if (!user) {
                 user = await ServiceProvider.findById(userId).select('-password -refreshToken');
@@ -56,11 +60,13 @@ export async function GET(request: NextRequest) {
 
             const payload = { user, userType };
 
-            // Store in cache for 20 seconds
-            try {
-                await setJson(cacheKey, payload, 20);
-            } catch (e) {
-                console.error('Redis write error:', e);
+            // Store in cache for 20 seconds only if Redis is working
+            if (useCache) {
+                try {
+                    await setJson(cacheKey, payload, 20);
+                } catch (e) {
+                    console.error('Redis write error:', e);
+                }
             }
 
             return NextResponse.json(payload, { status: 200 });
